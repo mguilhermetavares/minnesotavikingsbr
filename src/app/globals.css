@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vikings-purple: #4F2683;
+  --vikings-gold: #FFC62F;
+  --brasil-green: #009C3B;
+  --brasil-yellow: #FFDF00;
+  --brasil-blue: #002776;
+}
+
+body {
+  @apply bg-[#0a0a0f] text-white;
+  font-family: var(--font-inter), sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-oswald), sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* Noise texture overlay */
+.noise::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Gold gradient text */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #FFC62F 0%, #FFE088 50%, #FFC62F 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Purple glow */
+.glow-purple {
+  box-shadow: 0 0 60px rgba(79, 38, 131, 0.4), 0 0 120px rgba(79, 38, 131, 0.15);
+}
+
+/* Gold glow */
+.glow-gold {
+  box-shadow: 0 0 30px rgba(255, 198, 47, 0.3);
+}
+
+/* Card hover lift */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #4F2683;
+  border-radius: 3px;
+}
