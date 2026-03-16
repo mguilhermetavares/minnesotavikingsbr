@@ -7,17 +7,54 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald", weight: ["400", "500", "600", "700"] });
 
+const BASE_URL = "https://minnesotavikingsbr.com";
+
 export const metadata: Metadata = {
-  title: "Minnesota Vikings BR | A Maior Comunidade Vikings do Brasil",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Minnesota Vikings BR | A Maior Comunidade Vikings do Brasil",
+    template: "%s | Minnesota Vikings BR",
+  },
   description:
-    "A principal comunidade dos fãs do Minnesota Vikings no Brasil. Notícias, podcast, fantasy football e muito mais em português.",
+    "A principal comunidade de fãs do Minnesota Vikings no Brasil. Notícias, podcast, Fantasy MVB e muito mais em português. #SKOL 🇧🇷",
+  keywords: [
+    "Minnesota Vikings",
+    "Minnesota Vikings Brasil",
+    "Vikings BR",
+    "NFL Brasil",
+    "Fantasy Football Brasil",
+    "Podcast NFL",
+    "Futebol Americano Brasil",
+    "SKOL",
+    "MVB",
+  ],
+  authors: [{ name: "Minnesota Vikings BR" }],
+  creator: "Minnesota Vikings BR",
+  publisher: "Minnesota Vikings BR",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
+  },
   openGraph: {
-    title: "Minnesota Vikings BR",
-    description: "A principal comunidade dos fãs do Minnesota Vikings no Brasil.",
-    url: "https://minnesotavikingsbr.com",
+    title: "Minnesota Vikings BR | A Maior Comunidade Vikings do Brasil",
+    description:
+      "A principal comunidade de fãs do Minnesota Vikings no Brasil. Notícias, podcast, Fantasy MVB e muito mais em português.",
+    url: BASE_URL,
     siteName: "Minnesota Vikings BR",
     locale: "pt_BR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Minnesota Vikings BR",
+    description:
+      "A principal comunidade de fãs do Minnesota Vikings no Brasil. #SKOL 🇧🇷",
+    site: "@MN_Vikings_Br",
+    creator: "@MN_Vikings_Br",
+  },
+  alternates: {
+    canonical: BASE_URL,
   },
 };
 
