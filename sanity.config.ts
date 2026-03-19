@@ -17,6 +17,7 @@ export default defineConfig({
   basePath: '/studio',
   projectId,
   dataset,
+  studioUrl: process.env.NEXT_PUBLIC_STUDIO_URL ?? 'http://localhost:3000/studio',
   // Add and edit the content schema in the './sanity/schemaTypes' folder
   schema,
   plugins: [
