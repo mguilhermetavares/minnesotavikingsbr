@@ -9,6 +9,7 @@ const navLinks = [
   { href: "/noticias", label: "Notícias" },
   { href: "/podcast", label: "Podcast" },
   { href: "/fantasy", label: "Fantasy" },
+  { href: "/comunidade", label: "Comunidade" },
   { href: "/sobre", label: "Sobre" },
 ];
 
