@@ -126,7 +126,7 @@ export default function ComunidadePage() {
           </p>
 
           <p className="mt-8 text-2xl sm:text-3xl font-display font-bold text-white">
-            +6.500 fãs Vikings espalhados pelo Brasil 🇧🇷
+            Aproximadamente 5.000 fãs espalhados pelo Brasil 🇧🇷
           </p>
         </div>
 
