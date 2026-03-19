@@ -89,7 +89,7 @@ export default function Footer() {
               rel="noopener noreferrer"
               className="inline-block font-display text-xs tracking-[0.15em] bg-vikings-gold/10 border border-vikings-gold/30 text-vikings-gold px-4 py-2 rounded-full hover:bg-vikings-gold/20 transition-all"
             >
-              APOIE NO APOIA.SE
+              APOIE O PROJETO
             </a>
           </div>
         </div>
