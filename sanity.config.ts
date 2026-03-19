@@ -1,31 +1,29 @@
-import { defineConfig } from "sanity";
-import { structureTool } from "sanity/structure";
-import { visionTool } from "@sanity/vision";
-import { schemaTypes } from "./src/sanity/schemaTypes";
-import { apiVersion, dataset, projectId } from "./src/sanity/env";
+'use client'
+
+/**
+ * This configuration is used to for the Sanity Studio that’s mounted on the `/app/studio/[[...tool]]/page.tsx` route
+ */
+
+import {visionTool} from '@sanity/vision'
+import {defineConfig} from 'sanity'
+import {structureTool} from 'sanity/structure'
+
+// Go to https://www.sanity.io/docs/api-versioning to learn how API versioning works
+import {apiVersion, dataset, projectId} from './src/sanity/env'
+import {schema} from './src/sanity/schemaTypes'
+import {structure} from './src/sanity/structure'
 
 export default defineConfig({
-  basePath: "/studio",
+  basePath: '/studio',
   projectId,
   dataset,
-  apiVersion,
-  schema: {
-    types: schemaTypes,
-  },
+  // Add and edit the content schema in the './sanity/schemaTypes' folder
+  schema,
   plugins: [
-    structureTool({
-      structure: (S) =>
-        S.list()
-          .title("Minnesota Vikings BR")
-          .items([
-            S.listItem()
-              .title("Artigos")
-              .child(S.documentTypeList("article").title("Artigos")),
-            S.listItem()
-              .title("Episódios de Podcast")
-              .child(S.documentTypeList("podcastEpisode").title("Episódios")),
-          ]),
-    }),
-    visionTool({ defaultApiVersion: apiVersion }),
+    structureTool({structure}),
+    // Vision Tool apenas em desenvolvimento
+    ...(process.env.NODE_ENV !== 'production'
+      ? [visionTool({defaultApiVersion: apiVersion})]
+      : []),
   ],
-});
+})

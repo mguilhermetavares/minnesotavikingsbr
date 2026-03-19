@@ -3,7 +3,7 @@ import { client } from "@/sanity/client";
 import { articlesQuery } from "@/sanity/queries";
 import Link from "next/link";
 import Image from "next/image";
-import { createImageUrlBuilder } from "@sanity/image-url";
+import imageUrlBuilder from "@sanity/image-url";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SanityImageSource = any;
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   description: "As últimas notícias sobre o Minnesota Vikings em português.",
 };
 
-const builder = createImageUrlBuilder(client);
+const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }

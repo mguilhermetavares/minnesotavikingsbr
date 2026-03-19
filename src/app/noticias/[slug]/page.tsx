@@ -3,14 +3,14 @@ import { client } from "@/sanity/client";
 import { articleBySlugQuery, articlesQuery } from "@/sanity/queries";
 import { PortableText } from "@portabletext/react";
 import Image from "next/image";
-import { createImageUrlBuilder } from "@sanity/image-url";
+import imageUrlBuilder from "@sanity/image-url";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SanityImageSource = any;
 import { notFound } from "next/navigation";
 
 export const revalidate = 60;
 
-const builder = createImageUrlBuilder(client);
+const builder = imageUrlBuilder(client);
 function urlFor(source: SanityImageSource) {
   return builder.image(source);
 }
@@ -56,6 +56,9 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+
+  if (!/^[a-z0-9-]+$/.test(slug)) notFound();
+
   const article: Article | null = await client.fetch(articleBySlugQuery, { slug });
 
   if (!article) notFound();
