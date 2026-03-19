@@ -1,0 +1,22 @@
+{
+  "name": "Minnesota Vikings BR",
+  "short_name": "Vikings BR",
+  "description": "A principal comunidade de fãs do Minnesota Vikings no Brasil.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#4F2683",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

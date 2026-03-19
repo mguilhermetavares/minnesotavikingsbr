@@ -56,6 +56,7 @@ export const metadata: Metadata = {
   alternates: {
     canonical: BASE_URL,
   },
+  manifest: "/manifest.json",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
