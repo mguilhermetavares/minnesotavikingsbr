@@ -36,9 +36,34 @@ const features = [
   },
 ];
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SportsOrganization",
+  name: "Minnesota Vikings BR",
+  url: "https://minnesotavikingsbr.com",
+  logo: "https://minnesotavikingsbr.com/logo.jpg",
+  description:
+    "A principal comunidade de fãs do Minnesota Vikings no Brasil. Notícias, podcast, Fantasy MVB e muito mais em português.",
+  sport: "American Football",
+  areaServed: {
+    "@type": "Country",
+    name: "Brazil",
+  },
+  sameAs: [
+    "https://www.instagram.com/minnesotavikingsbr",
+    "https://twitter.com/MN_Vikings_Br",
+    "https://www.youtube.com/@MinnesotaVikingsBrasil",
+    "https://open.spotify.com/show/4OCbyJKMid1YXi9rdhfPWD",
+  ],
+};
+
 export default function Home() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center overflow-hidden">
         {/* Background layers */}
@@ -131,7 +156,7 @@ export default function Home() {
             </div>
 
             {/* Logo */}
-            <div className="flex-shrink-0 relative">
+            <div className="hidden md:flex flex-shrink-0 relative">
               <div className="absolute inset-0 bg-vikings-purple/30 rounded-full blur-[60px] scale-110" />
               <div className="relative w-64 h-64 lg:w-80 lg:h-80">
                 <Image
@@ -258,7 +283,7 @@ export default function Home() {
                 rel="noopener noreferrer"
                 className="flex-shrink-0 font-display tracking-wider bg-vikings-gold text-vikings-purple font-bold px-10 py-4 rounded-full hover:brightness-110 transition-all glow-gold text-sm whitespace-nowrap"
               >
-                APOIAR NO APOIA.SE
+                APOIE O PROJETO
               </a>
             </div>
           </div>
