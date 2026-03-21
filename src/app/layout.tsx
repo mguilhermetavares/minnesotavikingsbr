@@ -50,8 +50,8 @@ export const metadata: Metadata = {
     title: "Minnesota Vikings BR",
     description:
       "A principal comunidade de fãs do Minnesota Vikings no Brasil. #SKOL 🇧🇷",
-    site: "@MN_Vikings_Br",
-    creator: "@MN_Vikings_Br",
+    site: "@VikingsBrasil_",
+    creator: "@VikingsBrasil_",
   },
   alternates: {
     canonical: BASE_URL,

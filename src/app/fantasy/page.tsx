@@ -209,7 +209,7 @@ export default function FantasyPage() {
                 SEGUIR NO INSTAGRAM
               </a>
               <a
-                href="https://twitter.com/MN_Vikings_Br"
+                href="https://x.com/VikingsBrasil_"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-display tracking-wider border border-white/20 text-white font-semibold px-8 py-3 rounded-full hover:border-vikings-gold/60 hover:bg-white/5 transition-all text-sm"

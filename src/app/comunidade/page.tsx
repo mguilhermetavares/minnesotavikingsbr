@@ -23,9 +23,9 @@ const socialLinks = [
   },
   {
     name: "Twitter / X",
-    handle: "@MN_Vikings_Br",
+    handle: "@VikingsBrasil_",
     desc: "Notícias rápidas, reações ao vivo e debates",
-    href: "https://twitter.com/MN_Vikings_Br",
+    href: "https://x.com/VikingsBrasil_",
     color: "from-slate-900/40 to-slate-800/10",
     border: "border-slate-700/30 hover:border-slate-400/60",
     labelColor: "text-slate-400",
