@@ -24,8 +24,26 @@ async function getLatestVideoId(): Promise<string | null> {
     if (!res.ok) return null;
 
     const xml = await res.text();
-    const match = xml.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
-    return match ? match[1] : null;
+
+    // Parse all entries and return the first non-Short
+    const entryRegex = /<entry>([\s\S]*?)<\/entry>/g;
+    let entry: RegExpExecArray | null;
+
+    while ((entry = entryRegex.exec(xml)) !== null) {
+      const block = entry[1];
+      const videoIdMatch = block.match(/<yt:videoId>([^<]+)<\/yt:videoId>/);
+      if (!videoIdMatch) continue;
+
+      const title = (block.match(/<title>([^<]*)<\/title>/) ?? [])[1] ?? '';
+      const link  = (block.match(/<link[^>]+href="([^"]+)"/) ?? [])[1] ?? '';
+
+      // Skip Shorts: tagged with #shorts in title or served via /shorts/ URL
+      if (title.toLowerCase().includes('#shorts') || link.includes('/shorts/')) continue;
+
+      return videoIdMatch[1];
+    }
+
+    return null;
   } catch {
     return null;
   }
