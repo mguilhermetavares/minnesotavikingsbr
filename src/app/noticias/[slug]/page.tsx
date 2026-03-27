@@ -91,7 +91,7 @@ export default async function ArticlePage({
       )}
 
       {article.body && (
-        <div className="mt-10 prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-white/80 prose-p:mb-6 prose-strong:text-white prose-a:text-vikings-gold">
+        <div className="mt-10 prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-white/80 prose-p:mb-6 prose-strong:text-white prose-a:text-vikings-gold [&_p]:text-justify">
           <PortableText value={article.body as Parameters<typeof PortableText>[0]["value"]} />
         </div>
       )}
