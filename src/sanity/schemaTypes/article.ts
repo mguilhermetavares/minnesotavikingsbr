@@ -65,6 +65,8 @@ export const article = defineType({
           { title: "Draft", value: "draft" },
           { title: "Free Agency", value: "free-agency" },
           { title: "Temporada", value: "temporada" },
+          { title: "Podcast", value: "podcast" },
+          { title: "História", value: "historia" },
         ],
       },
     }),
