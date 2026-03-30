@@ -79,7 +79,6 @@ export default function FantasyPage() {
 
         {/* Premiação */}
         <div className="bg-surface-raised border border-white/5 rounded-2xl p-8">
-          <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 4</p>
           <h2 className="font-display text-white text-3xl font-bold mb-6">PREMIAÇÃO</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {prizes.map((p) => (
@@ -101,7 +100,6 @@ export default function FantasyPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Formato */}
           <div className="bg-surface-raised border border-white/5 rounded-2xl p-8">
-            <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 2</p>
             <h2 className="font-display text-white text-2xl font-bold mb-5">FORMATO</h2>
             <ul className="space-y-3 text-white/60 text-sm">
               {[
@@ -128,7 +126,6 @@ export default function FantasyPage() {
           <div className="flex flex-col gap-6">
             {/* Elenco */}
             <div className="flex-1 bg-surface-raised border border-white/5 rounded-2xl p-8">
-              <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 3</p>
               <h2 className="font-display text-white text-2xl font-bold mb-5">ELENCO</h2>
               <div className="flex flex-wrap gap-2 mb-6">
                 {roster.map((r) => (
@@ -159,7 +156,6 @@ export default function FantasyPage() {
 
             {/* Regulamento */}
             <div className="flex-1 bg-surface-raised border border-white/5 rounded-2xl p-8 flex flex-col justify-center">
-              <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 4</p>
               <h2 className="font-display text-white text-2xl font-bold mb-3">REGULAMENTO</h2>
               <p className="text-white/50 text-sm mb-6 leading-relaxed">
                 O documento oficial com todas as regras, pontuações e critérios de desempate da liga Fantasy MVB 2026.
