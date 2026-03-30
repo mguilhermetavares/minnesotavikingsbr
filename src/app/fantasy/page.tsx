@@ -124,34 +124,58 @@ export default function FantasyPage() {
             </ul>
           </div>
 
-          {/* Elenco */}
-          <div className="bg-surface-raised border border-white/5 rounded-2xl p-8">
-            <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 3</p>
-            <h2 className="font-display text-white text-2xl font-bold mb-5">ELENCO</h2>
-            <div className="flex flex-wrap gap-2 mb-6">
-              {roster.map((r) => (
-                <div
-                  key={r.pos}
-                  className={`flex items-center gap-1.5 border rounded-lg px-3 py-2 text-sm font-display ${r.color}`}
-                >
-                  <span className="font-bold">{r.pos}</span>
-                  <span className="text-xs opacity-70">×{r.qty}</span>
-                </div>
-              ))}
+          {/* Elenco + Regulamento */}
+          <div className="flex flex-col gap-6">
+            {/* Elenco */}
+            <div className="flex-1 bg-surface-raised border border-white/5 rounded-2xl p-8">
+              <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 3</p>
+              <h2 className="font-display text-white text-2xl font-bold mb-5">ELENCO</h2>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {roster.map((r) => (
+                  <div
+                    key={r.pos}
+                    className={`flex items-center gap-1.5 border rounded-lg px-3 py-2 text-sm font-display ${r.color}`}
+                  >
+                    <span className="font-bold">{r.pos}</span>
+                    <span className="text-xs opacity-70">×{r.qty}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="space-y-3 text-sm text-white/50">
+                <p className="flex items-start gap-2">
+                  <span className="text-vikings-gold mt-0.5">→</span>
+                  Draft Snake com ordem aleatória. Cada pick dura 4 horas (pausado das 22h às 8h).
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="text-vikings-gold mt-0.5">→</span>
+                  Trades desbalanceadas podem ser denunciadas e votadas pelo grupo no WhatsApp.
+                </p>
+                <p className="flex items-start gap-2">
+                  <span className="text-vikings-gold mt-0.5">→</span>
+                  Inscrições a partir de <strong className="text-white">30 de agosto de 2025</strong> via PIX, com os comissários.
+                </p>
+              </div>
             </div>
-            <div className="space-y-3 text-sm text-white/50">
-              <p className="flex items-start gap-2">
-                <span className="text-vikings-gold mt-0.5">→</span>
-                Draft Snake com ordem aleatória. Cada pick dura 4 horas (pausado das 22h às 8h).
+
+            {/* Regulamento */}
+            <div className="flex-1 bg-surface-raised border border-white/5 rounded-2xl p-8 flex flex-col justify-center">
+              <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-2">SEÇÃO 4</p>
+              <h2 className="font-display text-white text-2xl font-bold mb-3">REGULAMENTO</h2>
+              <p className="text-white/50 text-sm mb-6 leading-relaxed">
+                O documento oficial com todas as regras, pontuações e critérios de desempate da liga Fantasy MVB 2026.
               </p>
-              <p className="flex items-start gap-2">
-                <span className="text-vikings-gold mt-0.5">→</span>
-                Trades desbalanceadas podem ser denunciadas e votadas pelo grupo no WhatsApp.
-              </p>
-              <p className="flex items-start gap-2">
-                <span className="text-vikings-gold mt-0.5">→</span>
-                Inscrições a partir de <strong className="text-white">30 de agosto de 2025</strong> via PIX, com os comissários.
-              </p>
+              <a
+                href="/fantasy_mvb_2026.pdf"
+                download
+                className="inline-flex items-center gap-3 self-start font-display tracking-wider bg-vikings-gold text-vikings-purple font-bold px-6 py-3 rounded-full hover:brightness-110 transition-all text-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                BAIXAR REGULAMENTO
+              </a>
             </div>
           </div>
         </div>
@@ -218,7 +242,7 @@ export default function FantasyPage() {
               </a>
             </div>
             <p className="text-white/20 text-xs mt-6">
-              Comissários: João Otávio (@OtavioJP) e Guilherme Tavares
+              Comissários: João Otávio (@OtavioJP) e Guilherme Tavares (@_instaguido)
             </p>
           </div>
         </div>
