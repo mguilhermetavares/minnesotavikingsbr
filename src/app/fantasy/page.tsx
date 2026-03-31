@@ -10,7 +10,7 @@ const prizes = [
   { place: "🥇 Campeão", value: "R$ 100", color: "from-yellow-500/20 to-yellow-600/5", border: "border-yellow-500/30" },
   { place: "🥈 Vice-campeão", value: "R$ 60", color: "from-gray-400/20 to-gray-500/5", border: "border-gray-400/30" },
   { place: "📊 Melhor campanha geral", value: "R$ 20 × ligas", color: "from-vikings-purple/20 to-vikings-purple/5", border: "border-vikings-purple/30" },
-  { place: "⚡ Melhor rodada (todas as ligas)", value: "Boné oficial Vikings", color: "from-vikings-gold/20 to-vikings-gold/5", border: "border-vikings-gold/30" },
+  { place: "⚡ Melhor rodada (todas as ligas)", value: "Brinde a definir", color: "from-vikings-gold/20 to-vikings-gold/5", border: "border-vikings-gold/30" },
 ];
 
 const roster = [
@@ -92,7 +92,7 @@ export default function FantasyPage() {
             ))}
           </div>
           <p className="text-white/30 text-xs mt-4">
-            * Mesmo eliminado, vale continuar escalando — a melhor rodada individual de todas as ligas ganha um boné oficial dos Vikings!
+            * Mesmo eliminado, vale continuar escalando — a melhor rodada individual de todas as ligas ganha um brinde especial (a definir).
           </p>
         </div>
 
