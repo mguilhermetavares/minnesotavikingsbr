@@ -45,7 +45,7 @@ export async function generateMetadata({
   const article: Article | null = await client.fetch(articleBySlugQuery, { slug });
   if (!article) return { title: "Artigo não encontrado | Minnesota Vikings BR" };
   const ogImage = article.coverImage
-    ? urlFor(article.coverImage).width(1200).height(630).url()
+    ? urlFor(article.coverImage).width(1200).height(630).format("jpg").quality(80).url()
     : "/opengraph-image";
 
   return {
