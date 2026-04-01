@@ -44,9 +44,23 @@ export async function generateMetadata({
   const { slug } = await params;
   const article: Article | null = await client.fetch(articleBySlugQuery, { slug });
   if (!article) return { title: "Artigo não encontrado | Minnesota Vikings BR" };
+  const ogImage = article.coverImage
+    ? urlFor(article.coverImage).width(1200).height(630).url()
+    : "/opengraph-image";
+
   return {
     title: `${article.title} | Minnesota Vikings BR`,
     description: article.excerpt,
+    openGraph: {
+      title: article.title,
+      description: article.excerpt,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+      type: "article",
+    },
+    twitter: {
+      card: "summary_large_image",
+      images: [ogImage],
+    },
   };
 }
 
