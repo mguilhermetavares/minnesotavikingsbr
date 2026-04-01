@@ -100,7 +100,7 @@ export default function Footer() {
             © {new Date().getFullYear()} MINNESOTA VIKINGS BR
           </p>
           <p className="text-white/15 text-xs">
-            Fansite não oficial · Todos os direitos reservados aos Minnesota Vikings / NFL
+            Fansite não oficial · Conteúdo © Minnesota Vikings BR · Marcas registradas pertencem ao Minnesota Vikings / NFL
           </p>
         </div>
       </div>
