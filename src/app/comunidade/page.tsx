@@ -73,13 +73,13 @@ const whatsappGroups = [
     badge: "PRINCIPAL",
     badgeColor: "bg-vikings-gold text-vikings-purple",
   },
-  {
-    name: "Minnesota Vikings Brasil",
-    desc: "Para quem não tem medo de opinar. Discussões acaloradas, análises e o caldeirão dos torcedores.",
-    href: "https://chat.whatsapp.com/CZ3ehIzOFnXIVPUi1ZdlQj",
-    badge: "DEBATES",
-    badgeColor: "bg-white/10 text-white/70",
-  },
+  // {
+  //   name: "Minnesota Vikings Brasil",
+  //   desc: "Para quem não tem medo de opinar. Discussões acaloradas, análises e o caldeirão dos torcedores.",
+  //   href: "https://chat.whatsapp.com/CZ3ehIzOFnXIVPUi1ZdlQj",
+  //   badge: "DEBATES",
+  //   badgeColor: "bg-white/10 text-white/70",
+  // },
   {
     name: "Raça Vikings 💜🇧🇷",
     desc: "Mais um espaço para conversar sobre os Vikings. Quanto mais fãs, melhor!",
@@ -144,7 +144,7 @@ export default function ComunidadePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {whatsappGroups.map((group) => (
               <a
                 key={group.name}
