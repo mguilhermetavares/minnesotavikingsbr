@@ -53,28 +53,9 @@ export default function ApoiePage() {
       {/* Transparência */}
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-8">
         <h2 className="text-white font-bold text-xl mb-4">Para onde vai o dinheiro?</h2>
-        <ul className="space-y-3 text-white/70">
-          <li className="flex items-start gap-3">
-            <span className="text-vikings-gold mt-0.5">✓</span>
-            <span>Manutenção do site e domínio</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-vikings-gold mt-0.5">✓</span>
-            <span>Equipamentos para o podcast</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-vikings-gold mt-0.5">✓</span>
-            <span>Produção de conteúdo em português</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-vikings-gold mt-0.5">✓</span>
-            <span>Eventos e watch parties para a comunidade</span>
-          </li>
-          <li className="flex items-start gap-3">
-            <span className="text-vikings-gold mt-0.5">✓</span>
-            <span>Processo de reconhecimento oficial pelos Minnesota Vikings</span>
-          </li>
-        </ul>
+        <p className="text-white/70 leading-relaxed">
+          Todo o valor arrecadado é investido diretamente na manutenção do site, domínio, ferramentas de criação de conteúdo e equipamentos para o podcast. Mesmo com o apoio de vocês, ainda bancamos parte dos custos do próprio bolso — porque acreditamos nesse projeto e na nossa comunidade.
+        </p>
       </div>
     </div>
   );
