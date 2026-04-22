@@ -106,7 +106,28 @@ export default async function ArticlePage({
 
       {article.body && (
         <div className="mt-10 prose prose-invert prose-lg max-w-none prose-headings:text-white prose-p:text-white/80 prose-p:mb-6 prose-strong:text-white prose-a:text-vikings-gold [&_p]:text-justify">
-          <PortableText value={article.body as Parameters<typeof PortableText>[0]["value"]} />
+          <PortableText
+            value={article.body as Parameters<typeof PortableText>[0]["value"]}
+            components={{
+              types: {
+                image: ({ value }) => (
+                  <div className="my-8 relative w-full overflow-hidden rounded-xl not-prose">
+                    <Image
+                      src={urlFor(value).width(900).format("jpg").quality(85).url()}
+                      alt={value.alt ?? ""}
+                      width={900}
+                      height={0}
+                      style={{ height: "auto", width: "100%" }}
+                      className="rounded-xl"
+                    />
+                    {value.caption && (
+                      <p className="mt-2 text-center text-sm text-white/40">{value.caption}</p>
+                    )}
+                  </div>
+                ),
+              },
+            }}
+          />
         </div>
       )}
     </article>
