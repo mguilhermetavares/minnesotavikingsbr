@@ -33,6 +33,17 @@ yarn-error.log*
 CLAUDE.md
 ROADMAP.md
 
+# ai-jail
+.ai-jail
+
+# IDE
+.idea/
+
+# local-only reference docs
+/docs/
+email-signature.html
+email-signature-formal.html
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
