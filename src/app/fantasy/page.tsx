@@ -10,7 +10,7 @@ const prizes = [
   { place: "🥇 Campeão", value: "R$ 100", color: "from-yellow-500/20 to-yellow-600/5", border: "border-yellow-500/30" },
   { place: "🥈 Vice-campeão", value: "R$ 60", color: "from-gray-400/20 to-gray-500/5", border: "border-gray-400/30" },
   { place: "📊 Melhor campanha geral", value: "R$ 20 × ligas", color: "from-vikings-purple/20 to-vikings-purple/5", border: "border-vikings-purple/30" },
-  { place: "⚡ Melhor rodada (todas as ligas)", value: "Brinde a definir", color: "from-vikings-gold/20 to-vikings-gold/5", border: "border-vikings-gold/30" },
+  { place: "⚡ Melhor rodada (todas as ligas)", value: "Kit/brinde surpresa", color: "from-vikings-gold/20 to-vikings-gold/5", border: "border-vikings-gold/30" },
 ];
 
 const roster = [
@@ -110,7 +110,7 @@ export default function FantasyPage() {
                 ["Temporada regular", "14 rodadas"],
                 ["Playoffs", "Top 6 classificados"],
                 ["Pontuação", "HPR (Half Point Per Reception)"],
-                ["Draft", "14 de agosto de 2026 às 10h — Snake"],
+                ["Draft", "Snake — início em até 48h após lotar a liga"],
                 ["Waivers", "Processados às quartas-feiras"],
                 ["Trades", "Permitidas até a semana 9"],
               ].map(([label, value]) => (
@@ -149,7 +149,7 @@ export default function FantasyPage() {
                 </p>
                 <p className="flex items-start gap-2">
                   <span className="text-vikings-gold mt-0.5">→</span>
-                  Inscrições a partir de <strong className="text-white">30 de agosto de 2025</strong> via PIX, com os comissários.
+                  Inscrições <strong className="text-white">abertas</strong> desde 30 de agosto de 2026, via formulário do Google e pagamento por PIX.
                 </p>
               </div>
             </div>
@@ -214,17 +214,25 @@ export default function FantasyPage() {
             style={{ backgroundImage: `repeating-linear-gradient(45deg, #FFC62F 0, #FFC62F 1px, transparent 0, transparent 50%)`, backgroundSize: "20px 20px" }}
           />
           <div className="relative z-10">
-            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">EXCLUSIVO PARA TORCEDORES DO MINNESOTA VIKINGS</p>
+            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">INSCRIÇÕES ABERTAS</p>
             <h2 className="font-display text-white text-3xl font-bold mb-3">QUER PARTICIPAR?</h2>
             <p className="text-white/50 max-w-md mx-auto mb-8 text-sm">
-              As inscrições abrem em 30 de agosto de 2026. Fique ligado nas nossas redes sociais para não perder o prazo.
+              As inscrições já estão abertas! Clique abaixo para se inscrever pelo formulário oficial e garantir sua vaga na liga.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSeuw8hVs9vUQwC_vTQR326yvXYSv63TxAW4Bf_GzB15I7Azzw/viewform?usp=dialog"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-display tracking-wider bg-vikings-gold text-vikings-purple font-bold px-8 py-3 rounded-full hover:brightness-110 transition-all text-sm"
+              >
+                INSCREVA-SE
+              </a>
               <a
                 href="https://instagram.com/minnesotavikingsbr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-display tracking-wider bg-vikings-gold text-vikings-purple font-bold px-8 py-3 rounded-full hover:brightness-110 transition-all text-sm"
+                className="font-display tracking-wider border border-white/20 text-white font-semibold px-8 py-3 rounded-full hover:border-vikings-gold/60 hover:bg-white/5 transition-all text-sm"
               >
                 SEGUIR NO INSTAGRAM
               </a>
