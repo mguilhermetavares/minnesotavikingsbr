@@ -149,7 +149,7 @@ export default function FantasyPage() {
                 </p>
                 <p className="flex items-start gap-2">
                   <span className="text-vikings-gold mt-0.5">→</span>
-                  Inscrições <strong className="text-white">abertas</strong> desde 30 de agosto de 2026, via formulário do Google e pagamento por PIX.
+                  Inscrições <strong className="text-white">abertas</strong>, via formulário do Google e pagamento por PIX.
                 </p>
               </div>
             </div>
