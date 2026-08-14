@@ -228,6 +228,7 @@ export default function FantasyPage() {
               >
                 INSCREVA-SE
               </a>
+              {/* Ocultos enquanto as inscrições estão abertas — reativar quando encerrarem
               <a
                 href="https://instagram.com/minnesotavikingsbr"
                 target="_blank"
@@ -244,6 +245,7 @@ export default function FantasyPage() {
               >
                 SEGUIR NO TWITTER
               </a>
+              */}
             </div>
             <p className="text-white/20 text-xs mt-6">
               Comissários: João Otávio (@OtavioJP) e Guilherme Tavares (@_instaguido)
