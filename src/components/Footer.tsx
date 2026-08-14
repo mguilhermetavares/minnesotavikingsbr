@@ -102,6 +102,14 @@ export default function Footer() {
           <p className="text-white/15 text-xs">
             Fansite não oficial · Conteúdo © Minnesota Vikings BR · Marcas registradas pertencem ao Minnesota Vikings / NFL
           </p>
+          <a
+            href="https://www.mguilhermetavares.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-white/20 hover:text-vikings-gold text-xs transition-colors"
+          >
+            Desenvolvido por Guilherme Tavares
+          </a>
         </div>
       </div>
     </footer>
