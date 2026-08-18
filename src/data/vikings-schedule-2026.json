@@ -1,0 +1,364 @@
+{
+  "season": 2026,
+  "team": "Minnesota Vikings",
+  "source": {
+    "name": "Minnesota Vikings",
+    "url": "https://www.vikings.com/schedule/2026/"
+  },
+  "lastVerifiedAt": "2026-08-17",
+  "games": [
+    {
+      "id": "2026-pre-01",
+      "sequence": 1,
+      "seasonType": "preseason",
+      "week": 1,
+      "status": "final",
+      "location": "away",
+      "opponent": {
+        "code": "NYG",
+        "name": "New York Giants",
+        "shortName": "Giants"
+      },
+      "kickoffAt": "2026-08-15T17:00:00Z",
+      "venue": "MetLife Stadium",
+      "vikingsScore": 13,
+      "opponentScore": 10
+    },
+    {
+      "id": "2026-pre-02",
+      "sequence": 2,
+      "seasonType": "preseason",
+      "week": 2,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "BAL",
+        "name": "Baltimore Ravens",
+        "shortName": "Ravens"
+      },
+      "kickoffAt": "2026-08-22T17:00:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-pre-03",
+      "sequence": 3,
+      "seasonType": "preseason",
+      "week": 3,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "DEN",
+        "name": "Denver Broncos",
+        "shortName": "Broncos"
+      },
+      "kickoffAt": "2026-08-29T01:00:00Z",
+      "venue": "Empower Field at Mile High",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-01",
+      "sequence": 4,
+      "seasonType": "regular",
+      "week": 1,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "GB",
+        "name": "Green Bay Packers",
+        "shortName": "Packers"
+      },
+      "kickoffAt": "2026-09-13T20:25:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-02",
+      "sequence": 5,
+      "seasonType": "regular",
+      "week": 2,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "CHI",
+        "name": "Chicago Bears",
+        "shortName": "Bears"
+      },
+      "kickoffAt": "2026-09-20T17:00:00Z",
+      "venue": "Soldier Field",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-03",
+      "sequence": 6,
+      "seasonType": "regular",
+      "week": 3,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "TB",
+        "name": "Tampa Bay Buccaneers",
+        "shortName": "Buccaneers"
+      },
+      "kickoffAt": "2026-09-27T20:05:00Z",
+      "venue": "Raymond James Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-04",
+      "sequence": 7,
+      "seasonType": "regular",
+      "week": 4,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "MIA",
+        "name": "Miami Dolphins",
+        "shortName": "Dolphins"
+      },
+      "kickoffAt": "2026-10-04T20:05:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-05",
+      "sequence": 8,
+      "seasonType": "regular",
+      "week": 5,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "NO",
+        "name": "New Orleans Saints",
+        "shortName": "Saints"
+      },
+      "kickoffAt": "2026-10-11T17:00:00Z",
+      "venue": "Caesars Superdome",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-06-bye",
+      "sequence": 9,
+      "seasonType": "regular",
+      "week": 6,
+      "status": "bye",
+      "location": null,
+      "opponent": null,
+      "kickoffAt": null,
+      "venue": null,
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-07",
+      "sequence": 10,
+      "seasonType": "regular",
+      "week": 7,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "IND",
+        "name": "Indianapolis Colts",
+        "shortName": "Colts"
+      },
+      "kickoffAt": "2026-10-25T17:00:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-08",
+      "sequence": 11,
+      "seasonType": "regular",
+      "week": 8,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "DET",
+        "name": "Detroit Lions",
+        "shortName": "Lions"
+      },
+      "kickoffAt": "2026-11-01T18:00:00Z",
+      "venue": "Ford Field",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-09",
+      "sequence": 12,
+      "seasonType": "regular",
+      "week": 9,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "BUF",
+        "name": "Buffalo Bills",
+        "shortName": "Bills"
+      },
+      "kickoffAt": "2026-11-10T01:15:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-10",
+      "sequence": 13,
+      "seasonType": "regular",
+      "week": 10,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "GB",
+        "name": "Green Bay Packers",
+        "shortName": "Packers"
+      },
+      "kickoffAt": "2026-11-15T18:00:00Z",
+      "venue": "Lambeau Field",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-11",
+      "sequence": 14,
+      "seasonType": "regular",
+      "week": 11,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "SF",
+        "name": "San Francisco 49ers",
+        "shortName": "49ers"
+      },
+      "kickoffAt": "2026-11-23T01:20:00Z",
+      "venue": "Estadio Banorte",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-12",
+      "sequence": 15,
+      "seasonType": "regular",
+      "week": 12,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "ATL",
+        "name": "Atlanta Falcons",
+        "shortName": "Falcons"
+      },
+      "kickoffAt": "2026-11-29T18:00:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-13",
+      "sequence": 16,
+      "seasonType": "regular",
+      "week": 13,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "CAR",
+        "name": "Carolina Panthers",
+        "shortName": "Panthers"
+      },
+      "kickoffAt": "2026-12-06T21:25:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-14",
+      "sequence": 17,
+      "seasonType": "regular",
+      "week": 14,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "NE",
+        "name": "New England Patriots",
+        "shortName": "Patriots"
+      },
+      "kickoffAt": "2026-12-11T01:15:00Z",
+      "venue": "Gillette Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-15",
+      "sequence": 18,
+      "seasonType": "regular",
+      "week": 15,
+      "status": "scheduled",
+      "location": "home",
+      "opponent": {
+        "code": "DET",
+        "name": "Detroit Lions",
+        "shortName": "Lions"
+      },
+      "kickoffAt": "2026-12-21T01:20:00Z",
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-16",
+      "sequence": 19,
+      "seasonType": "regular",
+      "week": 16,
+      "status": "tbd",
+      "location": "home",
+      "opponent": {
+        "code": "WAS",
+        "name": "Washington Commanders",
+        "shortName": "Commanders"
+      },
+      "kickoffAt": null,
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-17",
+      "sequence": 20,
+      "seasonType": "regular",
+      "week": 17,
+      "status": "scheduled",
+      "location": "away",
+      "opponent": {
+        "code": "NYJ",
+        "name": "New York Jets",
+        "shortName": "Jets"
+      },
+      "kickoffAt": "2027-01-03T18:00:00Z",
+      "venue": "MetLife Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    },
+    {
+      "id": "2026-reg-18",
+      "sequence": 21,
+      "seasonType": "regular",
+      "week": 18,
+      "status": "tbd",
+      "location": "home",
+      "opponent": {
+        "code": "CHI",
+        "name": "Chicago Bears",
+        "shortName": "Bears"
+      },
+      "kickoffAt": null,
+      "venue": "U.S. Bank Stadium",
+      "vikingsScore": null,
+      "opponentScore": null
+    }
+  ]
+}
