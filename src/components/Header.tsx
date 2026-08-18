@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/noticias", label: "Notícias" },
   { href: "/podcast", label: "Podcast" },
+  { href: "/calendario", label: "Calendário" },
   { href: "/fantasy", label: "Fantasy" },
   { href: "/comunidade", label: "Comunidade" },
   { href: "/sobre", label: "Sobre" },
@@ -16,6 +17,7 @@ const navLinks = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -41,6 +43,8 @@ export default function Header() {
                 src="/logo.jpg"
                 alt="Minnesota Vikings BR"
                 fill
+                sizes="(min-width: 1024px) 48px, 40px"
+                priority
                 className="rounded-full object-cover ring-2 ring-vikings-gold/30 group-hover:ring-vikings-gold/80 transition-all"
               />
             </div>
@@ -55,11 +59,12 @@ export default function Header() {
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden lg:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={pathname === link.href ? "page" : undefined}
                 className={`font-display px-4 py-2 rounded-lg text-sm tracking-wider transition-all ${
                   pathname === link.href
                     ? "text-vikings-gold bg-vikings-gold/10"
@@ -72,7 +77,7 @@ export default function Header() {
           </nav>
 
           {/* CTA */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden lg:flex items-center gap-3">
             <a
               href="https://apoia.se/minnesotavikingsbrasil"
               target="_blank"
@@ -85,9 +90,12 @@ export default function Header() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5"
+            ref={menuButtonRef}
+            className="lg:hidden relative w-10 h-10 flex flex-col items-center justify-center gap-1.5"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Menu"
+            aria-controls="mobile-navigation"
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}
           >
             <span className={`block w-6 h-0.5 bg-white transition-all duration-300 origin-center ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
             <span className={`block w-6 h-0.5 bg-white transition-all duration-300 ${menuOpen ? "opacity-0 scale-x-0" : ""}`} />
@@ -97,12 +105,24 @@ export default function Header() {
       </div>
 
       {/* Mobile nav */}
-      <div className={`md:hidden transition-all duration-300 overflow-hidden ${menuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"}`}>
+      <div
+        id="mobile-navigation"
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            setMenuOpen(false);
+            menuButtonRef.current?.focus();
+          }
+        }}
+        className={`lg:hidden transition-all duration-300 overflow-hidden ${menuOpen ? "max-h-[28rem] opacity-100" : "max-h-0 opacity-0"}`}
+      >
         <div className="bg-[#0a0a0f]/98 backdrop-blur-md border-t border-white/5 px-4 py-4 space-y-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
+              aria-current={pathname === link.href ? "page" : undefined}
               className={`font-display block px-4 py-3 rounded-lg text-sm tracking-wider transition-all ${
                 pathname === link.href
                   ? "text-vikings-gold bg-vikings-gold/10"
