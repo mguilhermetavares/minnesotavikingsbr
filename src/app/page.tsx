@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import NextGameCard from "@/components/NextGameCard";
+import { getCurrentSchedule } from "@/data/schedules";
 
 export const revalidate = 3600;
 
@@ -62,6 +63,9 @@ const jsonLd = {
 };
 
 export default function Home() {
+  const schedule = getCurrentSchedule();
+  const referenceTime = Date.now();
+
   return (
     <>
       <script
@@ -180,7 +184,10 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
       </section>
 
-      <NextGameCard />
+      <NextGameCard
+        schedule={schedule}
+        referenceTime={referenceTime}
+      />
 
       {/* ── FEATURES ── */}
       <section className="relative bg-[#0a0a0f] py-20">

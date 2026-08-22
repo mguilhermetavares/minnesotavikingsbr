@@ -1,16 +1,45 @@
+"use client";
+
 import Link from "next/link";
+import { useMemo } from "react";
 
 import TeamBadge from "@/components/TeamBadge";
+import type { ScheduleData } from "@/data/schedules";
+import { getGameSelection } from "@/lib/game-selection";
 import {
-  formatGameDateInBrazil,
-  formatGameTimeInBrazil,
-  getNextGame,
-} from "@/lib/schedule";
+  brazilTimeZone,
+  formatGameDate,
+  formatGameTime,
+  isBrazilTimeEquivalent,
+} from "@/lib/time-zone";
+import { useLiveSchedule } from "@/lib/use-live-schedule";
+import { useLocalTimeZone } from "@/lib/use-local-time-zone";
+import { useReferenceTime } from "@/lib/use-reference-time";
 
-export default function NextGameCard() {
-  const nextGame = getNextGame();
+type NextGameCardProps = {
+  schedule: ScheduleData;
+  referenceTime: number;
+};
 
-  if (!nextGame) {
+export default function NextGameCard({
+  schedule,
+  referenceTime,
+}: NextGameCardProps) {
+  const timeZone = useLocalTimeZone();
+  const currentReferenceTime = useReferenceTime(referenceTime);
+  const displayedGames = useLiveSchedule(
+    schedule.games,
+    schedule.season,
+    true,
+    currentReferenceTime,
+  );
+  const selection = useMemo(
+    () => getGameSelection(displayedGames, currentReferenceTime),
+    [currentReferenceTime, displayedGames],
+  );
+  const featuredGame = selection.currentGame ?? selection.nextGame;
+
+  if (!featuredGame) {
     return (
       <section className="bg-[#0a0a0f] px-4 py-16 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-5xl rounded-2xl border border-white/10 bg-surface-raised p-8 text-center">
@@ -22,17 +51,23 @@ export default function NextGameCard() {
     );
   }
 
+  const isCurrentGame = selection.currentGame?.id === featuredGame.id;
+  const isConfirmedLive = isCurrentGame && featuredGame.status === "live";
   const seasonLabel =
-    nextGame.seasonType === "preseason"
+    featuredGame.seasonType === "preseason"
       ? "PRÉ-TEMPORADA"
       : "TEMPORADA REGULAR";
   const locationLabel =
-    nextGame.location === "home"
+    featuredGame.location === "home"
       ? "EM CASA"
-      : nextGame.location === "away"
+      : featuredGame.location === "away"
         ? "FORA DE CASA"
         : "LOCAL A DEFINIR";
-  const opponentName = nextGame.opponent?.name ?? "Adversário a definir";
+  const opponentName = featuredGame.opponent?.name ?? "Adversário a definir";
+  const usesBrazilTime = isBrazilTimeEquivalent(
+    featuredGame.kickoffAt,
+    timeZone,
+  );
 
   return (
     <section
@@ -48,14 +83,22 @@ export default function NextGameCard() {
           <div className="flex flex-col gap-3 border-b border-white/10 pb-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-display text-xs tracking-[0.2em] text-vikings-gold">
-                PRÓXIMO JOGO
+                {isConfirmedLive
+                  ? "AO VIVO"
+                  : isCurrentGame
+                    ? "JOGO ATUAL"
+                    : "PRÓXIMO JOGO"}
               </p>
               <p className="mt-2 font-display text-sm tracking-[0.15em] text-white/50">
-                {seasonLabel} · SEMANA {nextGame.week}
+                {seasonLabel} · SEMANA {featuredGame.week}
               </p>
             </div>
             <span className="self-start rounded-full border border-vikings-gold/20 bg-vikings-gold/10 px-4 py-2 font-display text-xs tracking-[0.15em] text-vikings-gold sm:self-auto">
-              {locationLabel}
+              {isConfirmedLive
+                ? "AO VIVO"
+                : isCurrentGame
+                  ? "JOGO ATUAL"
+                  : locationLabel}
             </span>
           </div>
 
@@ -83,7 +126,7 @@ export default function NextGameCard() {
 
             <div className="flex flex-col items-center text-center md:items-start md:text-left">
               <TeamBadge
-                code={nextGame.opponent?.code ?? "NFL"}
+                code={featuredGame.opponent?.code ?? "NFL"}
                 name={opponentName}
                 size="lg"
               />
@@ -98,27 +141,38 @@ export default function NextGameCard() {
 
           <div className="flex flex-col gap-5 border-t border-white/10 pt-6 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              {nextGame.kickoffAt ? (
-                <time dateTime={nextGame.kickoffAt}>
+              {featuredGame.kickoffAt ? (
+                <time dateTime={featuredGame.kickoffAt}>
                   <span className="block text-sm text-white/60">
-                    {formatGameDateInBrazil(nextGame)}
+                    {formatGameDate(featuredGame, timeZone)}
                   </span>
                   <span className="mt-1 block font-display text-xl font-bold tracking-wide text-white">
-                    {formatGameTimeInBrazil(nextGame)} · HORÁRIO DE BRASÍLIA
+                    {formatGameTime(featuredGame, timeZone)} ·{" "}
+                    {usesBrazilTime
+                      ? "HORÁRIO DE BRASÍLIA"
+                      : "SEU HORÁRIO LOCAL"}
                   </span>
+                  {!usesBrazilTime && (
+                    <span className="mt-2 block text-xs text-white/40">
+                      Brasília: {formatGameDate(featuredGame, brazilTimeZone)} ·{" "}
+                      {formatGameTime(featuredGame, brazilTimeZone)}
+                    </span>
+                  )}
                 </time>
               ) : (
                 <p className="font-display text-lg font-bold text-white">
-                  {formatGameDateInBrazil(nextGame)}
+                  {formatGameDate(featuredGame, timeZone)}
                 </p>
               )}
-              {nextGame.venue && (
-                <p className="mt-2 text-sm text-white/40">{nextGame.venue}</p>
+              {featuredGame.venue && (
+                <p className="mt-2 text-sm text-white/40">
+                  {featuredGame.venue}
+                </p>
               )}
             </div>
 
             <Link
-              href="/calendario"
+              href={`/calendario?season=${schedule.season}`}
               className="inline-flex items-center justify-center rounded-full bg-vikings-gold px-6 py-3 font-display text-sm font-bold tracking-wider text-vikings-purple transition-all hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-vikings-gold"
             >
               VER CALENDÁRIO COMPLETO

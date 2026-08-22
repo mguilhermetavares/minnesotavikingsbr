@@ -1,35 +1,51 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
+import LocalTimeZoneNotice from "@/components/LocalTimeZoneNotice";
 import ScheduleList from "@/components/ScheduleList";
-import scheduleData from "@/data/vikings-schedule-2026.json";
 import {
-  getHighlightedGame,
-  getPreseasonGames,
-  getRegularSeasonGames,
-  getScoreRefreshSeasonType,
-} from "@/lib/schedule";
+  getAvailableSeasons,
+  getCurrentSchedule,
+  resolveSchedule,
+} from "@/data/schedules";
+import { getRelevantGame } from "@/lib/game-selection";
+import { getPreseasonGames, getRegularSeasonGames } from "@/lib/schedule";
+import { formatVerifiedDate } from "@/lib/time-zone";
 
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Calendário 2026",
-  description:
-    "Calendário de jogos do Minnesota Vikings em horário de Brasília.",
+type SchedulePageProps = {
+  searchParams: Promise<{
+    season?: string | string[];
+  }>;
 };
 
-export default function SchedulePage() {
-  const preseasonGames = getPreseasonGames();
-  const regularSeasonGames = getRegularSeasonGames();
-  const referenceDate = new Date();
-  const highlightedPreseasonGame = getHighlightedGame(
-    preseasonGames,
-    referenceDate,
-  );
-  const highlightedRegularSeasonGame = getHighlightedGame(
-    regularSeasonGames,
-    referenceDate,
-  );
-  const activeSeasonType = getScoreRefreshSeasonType(referenceDate);
+export async function generateMetadata({
+  searchParams,
+}: SchedulePageProps): Promise<Metadata> {
+  const { season } = await searchParams;
+  const schedule = resolveSchedule(season);
+
+  return {
+    title: `Calendário ${schedule.season}`,
+    description: `Calendário de jogos do Minnesota Vikings na temporada ${schedule.season}, com horários no fuso local.`,
+  };
+}
+
+export default async function SchedulePage({
+  searchParams,
+}: SchedulePageProps) {
+  const { season } = await searchParams;
+  const schedule = resolveSchedule(season);
+  const currentSchedule = getCurrentSchedule();
+  const availableSeasons = getAvailableSeasons();
+  const preseasonGames = getPreseasonGames(schedule);
+  const regularSeasonGames = getRegularSeasonGames(schedule);
+  const referenceTime = Date.now();
+  const liveScoresSeasonType =
+    schedule.season === currentSchedule.season
+      ? getRelevantGame(schedule.games, referenceTime)?.seasonType ?? null
+      : null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -43,11 +59,34 @@ export default function SchedulePage() {
             MINNESOTA VIKINGS
           </p>
           <h1 className="mt-3 font-display text-5xl font-bold leading-none tracking-tight text-white sm:text-7xl">
-            CALENDÁRIO <span className="text-gold-gradient">2026</span>
+            CALENDÁRIO{" "}
+            <span className="text-gold-gradient">{schedule.season}</span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/50">
-            Todos os horários são exibidos no horário de Brasília.
-          </p>
+          <LocalTimeZoneNotice />
+
+          {availableSeasons.length > 1 && (
+            <nav
+              aria-label="Selecionar temporada"
+              className="mt-8 flex flex-wrap justify-center gap-2"
+            >
+              {availableSeasons.map((availableSeason) => (
+                <Link
+                  key={availableSeason}
+                  href={`/calendario?season=${availableSeason}`}
+                  aria-current={
+                    availableSeason === schedule.season ? "page" : undefined
+                  }
+                  className={`rounded-full border px-4 py-2 font-display text-sm tracking-wider transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-vikings-gold ${
+                    availableSeason === schedule.season
+                      ? "border-vikings-gold/50 bg-vikings-gold/15 text-vikings-gold"
+                      : "border-white/10 bg-white/5 text-white/50 hover:border-vikings-gold/30 hover:text-white"
+                  }`}
+                >
+                  {availableSeason}
+                </Link>
+              ))}
+            </nav>
+          )}
         </div>
       </section>
 
@@ -64,8 +103,10 @@ export default function SchedulePage() {
           </h2>
           <ScheduleList
             games={preseasonGames}
-            focusGameId={highlightedPreseasonGame?.id}
-            enableLiveScores={activeSeasonType === "preseason"}
+            season={schedule.season}
+            referenceTime={referenceTime}
+            enableLiveScores={liveScoresSeasonType === "preseason"}
+            fetchLiveScoresInitially={liveScoresSeasonType === "preseason"}
           />
         </section>
 
@@ -81,8 +122,10 @@ export default function SchedulePage() {
           </h2>
           <ScheduleList
             games={regularSeasonGames}
-            focusGameId={highlightedRegularSeasonGame?.id}
-            enableLiveScores={activeSeasonType === "regular"}
+            season={schedule.season}
+            referenceTime={referenceTime}
+            enableLiveScores={liveScoresSeasonType === "regular"}
+            fetchLiveScoresInitially={liveScoresSeasonType === "regular"}
           />
         </section>
 
@@ -90,12 +133,12 @@ export default function SchedulePage() {
           <p className="max-w-3xl">
             Calendário baseado na programação oficial dos{" "}
             <a
-              href={scheduleData.source.url}
+              href={schedule.source.url}
               target="_blank"
               rel="noopener noreferrer"
               className="rounded font-semibold text-vikings-gold underline decoration-vikings-gold/30 underline-offset-4 transition-colors hover:text-vikings-gold-light focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-vikings-gold"
             >
-              Minnesota Vikings
+              {schedule.source.name}
             </a>
             . Placares atualizados via{" "}
             <a
@@ -108,9 +151,14 @@ export default function SchedulePage() {
             </a>{" "}
             quando disponíveis.
           </p>
-          <p className="flex-shrink-0 font-display text-xs tracking-[0.12em] text-white/30 sm:text-right">
-            DATAS E HORÁRIOS SUJEITOS A ALTERAÇÕES
-          </p>
+          <div className="flex-shrink-0 sm:text-right">
+            <p className="font-display text-xs tracking-[0.12em] text-white/30">
+              DATAS E HORÁRIOS SUJEITOS A ALTERAÇÕES
+            </p>
+            <p className="mt-2 text-xs text-white/25">
+              Última verificação: {formatVerifiedDate(schedule.lastVerifiedAt)}
+            </p>
+          </div>
         </aside>
       </div>
     </div>

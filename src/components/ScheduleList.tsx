@@ -1,29 +1,26 @@
 "use client";
 
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type KeyboardEvent,
-} from "react";
+import { useEffect, useMemo, useRef, type KeyboardEvent } from "react";
 
 import TeamBadge from "@/components/TeamBadge";
+import { getCurrentGame, getRelevantGame } from "@/lib/game-selection";
 import {
-  mergeLiveScoreUpdates,
-  type LiveGameUpdate,
-  type LiveScoreResponse,
-} from "@/lib/live-scores";
-import {
-  formatGameDateInBrazil,
-  formatGameTimeInBrazil,
-  type ScheduleGame,
-} from "@/lib/schedule";
+  brazilTimeZone,
+  formatGameDate,
+  formatGameTime,
+  isBrazilTimeEquivalent,
+} from "@/lib/time-zone";
+import { useLiveSchedule } from "@/lib/use-live-schedule";
+import { useLocalTimeZone } from "@/lib/use-local-time-zone";
+import { useReferenceTime } from "@/lib/use-reference-time";
+import type { ScheduleGame } from "@/lib/schedule";
 
 type ScheduleListProps = {
   games: ScheduleGame[];
-  focusGameId?: string | null;
+  season: number;
+  referenceTime: number;
   enableLiveScores?: boolean;
+  fetchLiveScoresInitially?: boolean;
 };
 
 const statusLabels = {
@@ -36,102 +33,29 @@ const statusLabels = {
 
 export default function ScheduleList({
   games,
-  focusGameId,
+  season,
+  referenceTime,
   enableLiveScores = false,
+  fetchLiveScoresInitially = false,
 }: ScheduleListProps) {
   const listRef = useRef<HTMLDivElement>(null);
-  const [liveUpdates, setLiveUpdates] = useState<LiveGameUpdate[]>([]);
-  const displayedGames = useMemo(
-    () => mergeLiveScoreUpdates(games, liveUpdates),
-    [games, liveUpdates],
+  const timeZone = useLocalTimeZone();
+  const currentReferenceTime = useReferenceTime(referenceTime);
+  const displayedGames = useLiveSchedule(
+    games,
+    season,
+    enableLiveScores,
+    currentReferenceTime,
+    fetchLiveScoresInitially,
   );
-
-  useEffect(() => {
-    if (!enableLiveScores) {
-      return;
-    }
-
-    let cancelled = false;
-    let pollTimer: ReturnType<typeof setTimeout> | undefined;
-    let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
-    let idleCallbackId: number | undefined;
-    let activeRequest: AbortController | undefined;
-    let shouldPoll = false;
-
-    function scheduleNextRefresh() {
-      pollTimer = setTimeout(refreshScores, 60_000);
-    }
-
-    async function refreshScores() {
-      activeRequest?.abort();
-      activeRequest = new AbortController();
-
-      try {
-        const response = await fetch("/api/vikings-score", {
-          signal: activeRequest.signal,
-        });
-
-        if (!response.ok) {
-          if (!cancelled && shouldPoll) {
-            scheduleNextRefresh();
-          }
-          return;
-        }
-
-        const payload = (await response.json()) as Partial<LiveScoreResponse>;
-        if (
-          cancelled ||
-          payload.source !== "espn" ||
-          !Array.isArray(payload.games)
-        ) {
-          if (!cancelled && shouldPoll) {
-            scheduleNextRefresh();
-          }
-          return;
-        }
-
-        setLiveUpdates(payload.games);
-        shouldPoll = payload.games.some((game) => game.status === "live");
-
-        if (!cancelled && shouldPoll) {
-          scheduleNextRefresh();
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        if (!cancelled && shouldPoll) {
-          scheduleNextRefresh();
-        }
-      }
-    }
-
-    if (typeof window.requestIdleCallback === "function") {
-      idleCallbackId = window.requestIdleCallback(refreshScores, {
-        timeout: 2_000,
-      });
-    } else {
-      fallbackTimer = setTimeout(refreshScores, 1_000);
-    }
-
-    return () => {
-      cancelled = true;
-      activeRequest?.abort();
-
-      if (idleCallbackId !== undefined) {
-        window.cancelIdleCallback(idleCallbackId);
-      }
-
-      if (fallbackTimer !== undefined) {
-        clearTimeout(fallbackTimer);
-      }
-
-      if (pollTimer !== undefined) {
-        clearTimeout(pollTimer);
-      }
-    };
-  }, [enableLiveScores]);
+  const currentGameId = useMemo(
+    () => getCurrentGame(displayedGames, currentReferenceTime)?.id ?? null,
+    [currentReferenceTime, displayedGames],
+  );
+  const focusGameId = useMemo(
+    () => getRelevantGame(displayedGames, currentReferenceTime)?.id ?? null,
+    [currentReferenceTime, displayedGames],
+  );
 
   useEffect(() => {
     const list = listRef.current;
@@ -162,7 +86,10 @@ export default function ScheduleList({
     }
 
     list.scrollBy({
-      left: direction === "next" ? list.clientWidth * 0.8 : -list.clientWidth * 0.8,
+      left:
+        direction === "next"
+          ? list.clientWidth * 0.8
+          : -list.clientWidth * 0.8,
       behavior: "smooth",
     });
   }
@@ -252,7 +179,8 @@ export default function ScheduleList({
       >
         {displayedGames.map((game) => {
           const isBye = game.status === "bye";
-          const isLive = game.status === "live";
+          const isCurrentGame = game.id === currentGameId;
+          const isLive = isCurrentGame && game.status === "live";
           const hasFinalScore =
             game.status === "final" &&
             game.vikingsScore !== null &&
@@ -269,6 +197,10 @@ export default function ScheduleList({
           const isVikingsLoss =
             hasFinalScore && game.vikingsScore! < game.opponentScore!;
           const isFocused = game.id === focusGameId;
+          const usesBrazilTime = isBrazilTimeEquivalent(
+            game.kickoffAt,
+            timeZone,
+          );
           const resultLabel = isVikingsVictory
             ? "VITÓRIA"
             : isVikingsLoss
@@ -312,9 +244,13 @@ export default function ScheduleList({
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <span className="rounded-full border border-white/10 bg-black/20 px-3 py-1 font-display text-[11px] tracking-wider text-white/60">
-                    {statusLabels[game.status]}
+                    {isLive
+                      ? "AO VIVO"
+                      : isCurrentGame
+                        ? "JOGO ATUAL"
+                        : statusLabels[game.status]}
                   </span>
-                  {isFocused && !hasVisibleScore && (
+                  {isFocused && !isCurrentGame && !hasVisibleScore && (
                     <span className="rounded-full border border-vikings-gold/30 bg-vikings-gold/10 px-3 py-1 font-display text-[10px] tracking-wider text-vikings-gold">
                       EM DESTAQUE
                     </span>
@@ -395,13 +331,24 @@ export default function ScheduleList({
                         Vikings · {game.opponent.shortName}
                       </p>
                       {game.kickoffAt && (
-                        <time
-                          dateTime={game.kickoffAt}
-                          className="mt-3 block border-t border-white/10 pt-3 text-xs leading-relaxed text-white/40"
-                        >
-                          {formatGameDateInBrazil(game)} ·{" "}
-                          {formatGameTimeInBrazil(game)} · horário de Brasília
-                        </time>
+                        <>
+                          <time
+                            dateTime={game.kickoffAt}
+                            className="mt-3 block border-t border-white/10 pt-3 text-xs leading-relaxed text-white/40"
+                          >
+                            {formatGameDate(game, timeZone)} ·{" "}
+                            {formatGameTime(game, timeZone)} ·{" "}
+                            {usesBrazilTime
+                              ? "horário de Brasília"
+                              : "seu horário local"}
+                          </time>
+                          {!usesBrazilTime && (
+                            <p className="mt-2 text-[11px] text-white/35">
+                              Brasília: {formatGameDate(game, brazilTimeZone)} ·{" "}
+                              {formatGameTime(game, brazilTimeZone)}
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   ) : game.kickoffAt ? (
@@ -410,19 +357,27 @@ export default function ScheduleList({
                       className="relative z-10 block rounded-2xl border border-white/10 bg-black/20 p-4 text-center"
                     >
                       <span className="block text-sm leading-relaxed text-white/60">
-                        {formatGameDateInBrazil(game)}
+                        {formatGameDate(game, timeZone)}
                       </span>
                       <span className="mt-1 block font-display text-xl font-bold text-white">
-                        {formatGameTimeInBrazil(game)}
+                        {formatGameTime(game, timeZone)}
                       </span>
                       <span className="mt-1 block font-display text-[10px] tracking-[0.16em] text-white/30">
-                        HORÁRIO DE BRASÍLIA
+                        {usesBrazilTime
+                          ? "HORÁRIO DE BRASÍLIA"
+                          : "SEU HORÁRIO LOCAL"}
                       </span>
+                      {!usesBrazilTime && (
+                        <span className="mt-2 block text-xs text-white/40">
+                          Brasília: {formatGameDate(game, brazilTimeZone)} ·{" "}
+                          {formatGameTime(game, brazilTimeZone)}
+                        </span>
+                      )}
                     </time>
                   ) : (
                     <div className="relative z-10 rounded-2xl border border-vikings-gold/20 bg-vikings-gold/5 p-4 text-center">
                       <p className="font-display text-lg font-bold text-vikings-gold">
-                        {formatGameDateInBrazil(game)}
+                        {formatGameDate(game, timeZone)}
                       </p>
                     </div>
                   )}

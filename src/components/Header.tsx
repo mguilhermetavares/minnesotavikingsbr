@@ -43,8 +43,6 @@ export default function Header() {
                 src="/logo.jpg"
                 alt="Minnesota Vikings BR"
                 fill
-                sizes="(min-width: 1024px) 48px, 40px"
-                priority
                 className="rounded-full object-cover ring-2 ring-vikings-gold/30 group-hover:ring-vikings-gold/80 transition-all"
               />
             </div>

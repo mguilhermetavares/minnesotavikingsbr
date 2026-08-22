@@ -1,9 +1,11 @@
 import type { ScheduleGame, SeasonType } from "@/lib/schedule";
+import { isConfirmedLiveGameActive } from "@/lib/game-selection";
 
 export type LiveGameStatus = "scheduled" | "live" | "final";
 
 export type LiveGameUpdate = {
   eventId: string;
+  season: number;
   seasonType: SeasonType;
   status: LiveGameStatus;
   statusDetail: string;
@@ -15,6 +17,7 @@ export type LiveGameUpdate = {
 };
 
 export type LiveScoreResponse = {
+  season: number;
   games: LiveGameUpdate[];
   source: "espn" | "unavailable";
   fetchedAt: string;
@@ -30,6 +33,8 @@ const maximumKickoffDifference = 36 * 60 * 60 * 1000;
 export function mergeLiveScoreUpdates(
   games: ScheduleGame[],
   updates: LiveGameUpdate[],
+  season: number,
+  referenceTime: number = Date.now(),
 ): DisplayScheduleGame[] {
   return games.map((game) => {
     if (!game.opponent) {
@@ -41,21 +46,40 @@ export function mergeLiveScoreUpdates(
       : Number.NaN;
     const update = updates.find((candidate) => {
       const updateKickoff = new Date(candidate.kickoffAt).getTime();
-      const matchesRegularSeasonWeek =
-        game.seasonType === "regular" && candidate.week === game.week;
       const matchesKickoff =
         Number.isFinite(gameKickoff) &&
         Number.isFinite(updateKickoff) &&
         Math.abs(updateKickoff - gameKickoff) <= maximumKickoffDifference;
+      const kickoffCanBeMatched = Number.isFinite(gameKickoff)
+        ? matchesKickoff
+        : true;
+      const matchesWeek = candidate.week === game.week;
+      const matchesKnownPreseasonOffset =
+        game.seasonType === "preseason" &&
+        candidate.week !== null &&
+        Math.abs(candidate.week - game.week) === 1 &&
+        matchesKickoff;
 
       return (
+        candidate.season === season &&
         candidate.seasonType === game.seasonType &&
+        (matchesWeek || matchesKnownPreseasonOffset) &&
         candidate.opponentCode === game.opponent?.code &&
-        (matchesRegularSeasonWeek || matchesKickoff)
+        kickoffCanBeMatched
       );
     });
 
     if (!update) {
+      return game;
+    }
+
+    if (
+      update.status === "live" &&
+      !isConfirmedLiveGameActive(
+        { ...game, status: "live", kickoffAt: update.kickoffAt },
+        referenceTime,
+      )
+    ) {
       return game;
     }
 
