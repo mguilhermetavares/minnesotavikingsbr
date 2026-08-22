@@ -73,7 +73,7 @@ export default function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center overflow-hidden">
+      <section className="relative flex items-center overflow-hidden md:min-h-screen">
         {/* Background layers */}
         <div className="absolute inset-0 bg-[#0a0a0f]" />
         <div className="absolute inset-0 bg-gradient-to-br from-vikings-purple-dark/80 via-[#0a0a0f] to-[#0a0a0f]" />
@@ -92,7 +92,7 @@ export default function Home() {
           }}
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-16 w-full">
+        <div className="relative z-10 mx-auto w-full max-w-7xl px-4 pb-10 pt-28 sm:px-6 sm:pb-12 sm:pt-28 md:py-16 lg:px-8">
           <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
             {/* Text */}
             <div className="flex-1 text-center lg:text-left">
