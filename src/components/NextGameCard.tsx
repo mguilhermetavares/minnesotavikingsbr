@@ -72,7 +72,7 @@ export default function NextGameCard({
   return (
     <section
       aria-labelledby="next-game-title"
-      className="relative overflow-hidden bg-[#0a0a0f] px-4 py-16 sm:px-6 lg:px-8"
+      className="relative overflow-hidden bg-[#0a0a0f] px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16"
     >
       <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-vikings-purple/20 blur-[100px]" />
 
