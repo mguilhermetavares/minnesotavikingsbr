@@ -31,6 +31,14 @@ const statusLabels = {
   tbd: "A DEFINIR",
 };
 
+function formatCalendarDate(game: ScheduleGame, timeZone: string) {
+  return formatGameDate(game, timeZone)
+    .replace(/^./u, (letter) => letter.toLocaleUpperCase("pt-BR"))
+    .replace(/\bde (\p{L})/gu, (_match, letter: string) =>
+      `de ${letter.toLocaleUpperCase("pt-BR")}`,
+    );
+}
+
 export default function ScheduleList({
   games,
   season,
@@ -311,7 +319,7 @@ export default function ScheduleList({
                     <div
                       aria-live="polite"
                       aria-atomic="true"
-                      className="relative z-10 rounded-2xl border border-white/10 bg-black/20 p-4 text-center"
+                      className="relative z-10 flex h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-4 text-center"
                     >
                       <span
                         className={`inline-flex rounded-full border px-3 py-1 font-display text-xs font-bold tracking-[0.18em] ${
@@ -336,16 +344,24 @@ export default function ScheduleList({
                             dateTime={game.kickoffAt}
                             className="mt-3 block border-t border-white/10 pt-3 text-xs leading-relaxed text-white/40"
                           >
-                            {formatGameDate(game, timeZone)} ·{" "}
-                            {formatGameTime(game, timeZone)} ·{" "}
-                            {usesBrazilTime
-                              ? "horário de Brasília"
-                              : "seu horário local"}
+                            <span className="block">
+                              {formatCalendarDate(game, timeZone)}
+                            </span>
+                            <span className="mt-1 block">
+                              {formatGameTime(game, timeZone)} ·{" "}
+                              {usesBrazilTime
+                                ? "Horário de Brasília"
+                                : "Seu Horário Local"}
+                            </span>
                           </time>
                           {!usesBrazilTime && (
                             <p className="mt-2 text-[11px] text-white/35">
-                              Brasília: {formatGameDate(game, brazilTimeZone)} ·{" "}
-                              {formatGameTime(game, brazilTimeZone)}
+                              <span className="block">
+                                Brasília: {formatCalendarDate(game, brazilTimeZone)}
+                              </span>
+                              <span className="mt-1 block">
+                                {formatGameTime(game, brazilTimeZone)}
+                              </span>
                             </p>
                           )}
                         </>
@@ -354,30 +370,34 @@ export default function ScheduleList({
                   ) : game.kickoffAt ? (
                     <time
                       dateTime={game.kickoffAt}
-                      className="relative z-10 block rounded-2xl border border-white/10 bg-black/20 p-4 text-center"
+                      className="relative z-10 flex h-[220px] flex-col items-center justify-center rounded-2xl border border-white/10 bg-black/20 p-4 text-center"
                     >
                       <span className="block text-sm leading-relaxed text-white/60">
-                        {formatGameDate(game, timeZone)}
+                        {formatCalendarDate(game, timeZone)}
                       </span>
                       <span className="mt-1 block font-display text-xl font-bold text-white">
                         {formatGameTime(game, timeZone)}
                       </span>
                       <span className="mt-1 block font-display text-[10px] tracking-[0.16em] text-white/30">
                         {usesBrazilTime
-                          ? "HORÁRIO DE BRASÍLIA"
-                          : "SEU HORÁRIO LOCAL"}
+                          ? "Horário de Brasília"
+                          : "Seu Horário Local"}
                       </span>
                       {!usesBrazilTime && (
                         <span className="mt-2 block text-xs text-white/40">
-                          Brasília: {formatGameDate(game, brazilTimeZone)} ·{" "}
-                          {formatGameTime(game, brazilTimeZone)}
+                          <span className="block">
+                            Brasília: {formatCalendarDate(game, brazilTimeZone)}
+                          </span>
+                          <span className="mt-1 block">
+                            {formatGameTime(game, brazilTimeZone)}
+                          </span>
                         </span>
                       )}
                     </time>
                   ) : (
-                    <div className="relative z-10 rounded-2xl border border-vikings-gold/20 bg-vikings-gold/5 p-4 text-center">
+                    <div className="relative z-10 flex h-[220px] items-center justify-center rounded-2xl border border-vikings-gold/20 bg-vikings-gold/5 p-4 text-center">
                       <p className="font-display text-lg font-bold text-vikings-gold">
-                        {formatGameDate(game, timeZone)}
+                        {formatCalendarDate(game, timeZone)}
                       </p>
                     </div>
                   )}
@@ -388,11 +408,6 @@ export default function ScheduleList({
                     </p>
                     {game.venue && (
                       <p className="mt-1 text-sm text-white/60">{game.venue}</p>
-                    )}
-                    {game.scoreSource === "espn" && (
-                      <p className="mt-2 font-display text-[10px] tracking-[0.14em] text-white/30">
-                        PLACAR ATUALIZADO VIA ESPN
-                      </p>
                     )}
                   </div>
                 </>
