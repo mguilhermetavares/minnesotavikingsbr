@@ -2,22 +2,37 @@
 
 > A principal comunidade de fãs do Minnesota Vikings no Brasil.
 
-Site oficial da comunidade **Minnesota Vikings BR** — hub central para notícias, podcast, fantasy football e muito mais em português.
+Este repositório é o código-fonte do site oficial da comunidade **Minnesota Vikings BR**: notícias, podcast, calendário de jogos, Fantasy Football e os canais da torcida, tudo em português.
+
+O código é aberto para transparência — qualquer torcedor pode ver exatamente como o site funciona — mas ele não é um template genérico: é construído sob medida para esta comunidade específica, com conteúdo, regras de negócio (como o Fantasy MVB) e identidade visual dos Vikings + Brasil.
 
 🌐 [minnesotavikingsbr.com](https://minnesotavikingsbr.com)
 
 ---
 
-## Sobre o Projeto
+## A comunidade
 
-O Minnesota Vikings BR é uma comunidade independente de fãs brasileiros do Minnesota Vikings, em processo de reconhecimento oficial pela franquia. Produzimos conteúdo em português sobre o time: análises, podcast, cobertura da temporada, draft, free agency e muito mais.
+Somos torcedores brasileiros do Minnesota Vikings organizados em comunidade independente, em processo de reconhecimento oficial pela franquia. Já interagimos com jogadores e lendas do time, incluindo um alô em vídeo do Hall of Fame **John Randle**.
 
-**Presença digital:**
 - 🎙️ [Podcast no Spotify](https://open.spotify.com/show/4OCbyJKMid1YXi9rdhfPWD)
 - 📺 [YouTube](https://www.youtube.com/@MinnesotaVikingsBrasil)
 - 📸 [Instagram](https://instagram.com/minnesotavikingsbr) — @minnesotavikingsbr
-- 🐦 [Twitter/X](https://twitter.com/MN_Vikings_Br) — @MN_Vikings_Br
-- 💜 [Apoia.se](https://apoia.se/minnesotavikingsbrasil)
+- 🐦 [Twitter/X](https://x.com/VikingsBrasil_) — @VikingsBrasil_
+- 💜 [Apoia.se](https://apoia.se/minnesotavikingsbrasil) — financiamento da comunidade
+
+## O que o site faz
+
+| Página | O que é |
+|---|---|
+| `/` | Home — apresentação da comunidade |
+| `/noticias` | Artigos sobre o time, publicados via Sanity CMS |
+| `/podcast` | Último vídeo do canal (YouTube RSS) + embed do Spotify |
+| `/calendario` | Calendário de jogos da temporada, com fuso horário local |
+| `/fantasy` | Fantasy MVB — liga anual de fantasy football da comunidade |
+| `/comunidade` | Grupos de WhatsApp e redes sociais |
+| `/apoie` | Apoio financeiro via Apoia.se, com transparência |
+| `/sobre` | História, conquistas e interações com jogadores/lendas |
+| `/studio` | Sanity Studio embarcado, onde a equipe publica conteúdo sem código |
 
 ---
 
@@ -27,68 +42,16 @@ O Minnesota Vikings BR é uma comunidade independente de fãs brasileiros do Min
 |---|---|---|
 | Framework | [Next.js](https://nextjs.org) (App Router + TypeScript) | Performance, SEO e escalabilidade |
 | Estilização | [Tailwind CSS](https://tailwindcss.com) | Desenvolvimento ágil, mobile-first |
-| CMS | [Sanity](https://sanity.io) | Painel visual para publicação de conteúdo sem código |
+| CMS | [Sanity](https://sanity.io) | Painel visual para a equipe publicar conteúdo sem código |
 | Hospedagem | [Vercel](https://vercel.com) | Deploy automático, free tier robusto |
 
-Custo de infraestrutura: **R$ 0** — tudo no free tier.
+Custo de infraestrutura: **R$ 0** — tudo no free tier, para manter o projeto sustentável como comunidade sem fins lucrativos.
 
 ---
 
-## Rodando localmente
+## Contribuindo
 
-**Pré-requisitos:** Node.js 18+
-
-```bash
-# Instalar dependências
-npm install
-
-# Configurar variáveis de ambiente
-cp .env.local.example .env.local
-# Edite .env.local com suas credenciais do Sanity
-
-# Rodar em desenvolvimento
-npm run dev
-```
-
-Acesse [http://localhost:3000](http://localhost:3000).
-Sanity Studio em [http://localhost:3000/studio](http://localhost:3000/studio).
-
-## Variáveis de ambiente
-
-```env
-NEXT_PUBLIC_SANITY_PROJECT_ID=seu_project_id
-NEXT_PUBLIC_SANITY_DATASET=production
-NEXT_PUBLIC_SANITY_API_VERSION=2024-01-01
-```
-
-Obtenha o Project ID em [sanity.io/manage](https://sanity.io/manage).
-
----
-
-## Estrutura
-
-```
-src/
-  app/
-    page.tsx              # Home
-    podcast/              # Podcast (Spotify + último vídeo do YouTube)
-    noticias/             # Notícias (Sanity CMS)
-    fantasy/              # Fantasy MVB
-    apoie/                # Apoie o projeto
-    comunidade/           # Comunidade (WhatsApp + redes sociais)
-    sobre/                # Sobre + conquistas
-    studio/               # Sanity Studio
-  components/
-    Header.tsx
-    Footer.tsx
-    InstagramCard.tsx
-  sanity/
-    client.ts             # Cliente Sanity
-    queries.ts            # Queries GROQ
-    schemaTypes/          # Schemas (Artigo, Episódio de Podcast)
-```
-
----
+Este projeto é mantido para e pela comunidade Minnesota Vikings BR. Se você é torcedor e quer contribuir com código, abra uma issue ou PR — mas tenha em mente que decisões de conteúdo, marca e identidade visual seguem a linha da comunidade, não são genéricas.
 
 ## Mantenedor
 
