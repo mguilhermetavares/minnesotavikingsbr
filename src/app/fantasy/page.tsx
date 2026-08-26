@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Fantasy MVB | Minnesota Vikings BR",
   description:
-    "O Fantasy da torcida mais fanática do Brasil. Participe da liga anual de Fantasy Football da comunidade Minnesota Vikings BR.",
+    "O Fantasy da torcida mais fanática do Brasil. Inscrições encerradas — as 3 ligas da temporada 2026 do Fantasy MVB já estão formadas.",
 };
 
 const prizes = [
@@ -149,7 +149,7 @@ export default function FantasyPage() {
                 </p>
                 <p className="flex items-start gap-2">
                   <span className="text-vikings-gold mt-0.5">→</span>
-                  Inscrições <strong className="text-white">abertas</strong>, via formulário do Google e pagamento por PIX.
+                  Inscrições <strong className="text-white">encerradas</strong>.
                 </p>
               </div>
             </div>
@@ -214,21 +214,12 @@ export default function FantasyPage() {
             style={{ backgroundImage: `repeating-linear-gradient(45deg, #FFC62F 0, #FFC62F 1px, transparent 0, transparent 50%)`, backgroundSize: "20px 20px" }}
           />
           <div className="relative z-10">
-            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">INSCRIÇÕES ABERTAS</p>
-            <h2 className="font-display text-white text-3xl font-bold mb-3">QUER PARTICIPAR?</h2>
+            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">INSCRIÇÕES ENCERRADAS</p>
+            <h2 className="font-display text-white text-3xl font-bold mb-3">AS 3 LIGAS ESTÃO FORMADAS!</h2>
             <p className="text-white/50 max-w-md mx-auto mb-8 text-sm">
-              As inscrições já estão abertas! Clique abaixo para se inscrever pelo formulário oficial e garantir sua vaga na liga.
+              As vagas se esgotaram e as 3 ligas do Fantasy MVB já foram montadas no Sleeper. Fique de olho nas redes pra acompanhar a temporada e não perder a próxima edição.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSeuw8hVs9vUQwC_vTQR326yvXYSv63TxAW4Bf_GzB15I7Azzw/viewform?usp=dialog"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-display tracking-wider bg-vikings-gold text-vikings-purple font-bold px-8 py-3 rounded-full hover:brightness-110 transition-all text-sm"
-              >
-                INSCREVA-SE
-              </a>
-              {/* Ocultos enquanto as inscrições estão abertas — reativar quando encerrarem
               <a
                 href="https://instagram.com/minnesotavikingsbr"
                 target="_blank"
@@ -245,7 +236,6 @@ export default function FantasyPage() {
               >
                 SEGUIR NO TWITTER
               </a>
-              */}
             </div>
             <p className="text-white/20 text-xs mt-6">
               Comissários: João Otávio (@OtavioJP) e Guilherme Tavares (@_instaguido)
