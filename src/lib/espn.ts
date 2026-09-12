@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getSchedule } from "@/data/schedules";
+
 import type {
   LiveGameStatus,
   LiveGameUpdate,
@@ -7,16 +9,48 @@ import type {
 } from "@/lib/live-scores";
 import type { SeasonType } from "@/lib/schedule";
 
-const espnScoreboardUrl =
-  "https://cdn.espn.com/core/nfl/scoreboard?xhr=1&limit=50";
-const espnGameUrl = (eventId: string) =>
-  `https://cdn.espn.com/core/nfl/game?xhr=1&gameId=${encodeURIComponent(eventId)}`;
+function espnScoreboardUrl(season: number) {
+  const lastFebruaryDay = new Date(Date.UTC(season + 1, 2, 0)).getUTCDate();
+  return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}0801-${season + 1}02${lastFebruaryDay}&limit=1000`;
+}
 const espnRequestTimeout = 4000;
+export const scoreCacheLifetimeMs = 30_000;
+const retryDelayMs = 5_000;
+const maximumPayloadBytes = 8 * 1024 * 1024;
+type ScoreCacheEntry = {
+  result?: LiveScoreResponse;
+  retryAt: number;
+  pending?: Promise<LiveScoreResponse>;
+};
+// Bounded by configured seasons. Coalesce cold-cache requests in each server
+// instance; CDN caching handles visitors across instances and regions.
+const scoreCache = new Map<number, ScoreCacheEntry>();
+
+async function readScoreboard(response: Response): Promise<unknown> {
+  const reader = response.body?.getReader();
+  if (!reader) throw new Error("Missing scoreboard");
+  const decoder = new TextDecoder();
+  let body = "";
+  let bytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > maximumPayloadBytes) throw new Error("Scoreboard too large");
+      body += decoder.decode(value, { stream: true });
+    }
+    return JSON.parse(body + decoder.decode());
+  } finally {
+    await reader.cancel();
+    reader.releaseLock();
+  }
+}
 
 type UnknownRecord = Record<string, unknown>;
 
 function asRecord(value: unknown): UnknownRecord | null {
-  return typeof value === "object" && value !== null
+  return typeof value === "object" && value !== null && !Array.isArray(value)
     ? (value as UnknownRecord)
     : null;
 }
@@ -50,7 +84,12 @@ function parseScore(value: unknown) {
   }
 
   const score = Number(rawScore);
-  return Number.isInteger(score) && score >= 0 && score <= 200 ? score : null;
+  return String(rawScore).trim() !== "" &&
+    Number.isInteger(score) &&
+    score >= 0 &&
+    score <= 200
+    ? score
+    : null;
 }
 
 function normalizeTeamCode(code: string) {
@@ -84,19 +123,21 @@ function normalizeSeason(value: number | null) {
     : null;
 }
 
-function normalizeStatus(statusType: UnknownRecord | null): LiveGameStatus {
+function normalizeStatus(
+  statusType: UnknownRecord | null,
+): LiveGameStatus | null {
   const state = getString(statusType, "state");
   const completed = getBoolean(statusType, "completed");
 
-  if (completed || state === "post") {
+  if (completed === true && state === "post") {
     return "final";
   }
 
-  if (state === "in") {
+  if (state === "in" && completed === false) {
     return "live";
   }
 
-  return "scheduled";
+  return state === "pre" && completed === false ? "scheduled" : null;
 }
 
 function normalizeEvent(value: unknown): LiveGameUpdate | null {
@@ -106,8 +147,7 @@ function normalizeEvent(value: unknown): LiveGameUpdate | null {
     .map(asRecord)
     .filter((competitor): competitor is UnknownRecord => competitor !== null);
   const vikings = competitors.find(
-    (competitor) =>
-      getString(asRecord(competitor.team), "abbreviation") === "MIN",
+    (competitor) => getString(asRecord(competitor.team), "id") === "16",
   );
   const opponent = competitors.find((competitor) => competitor !== vikings);
   const opponentCode = getString(asRecord(opponent?.team), "abbreviation");
@@ -119,16 +159,32 @@ function normalizeEvent(value: unknown): LiveGameUpdate | null {
   );
   const statusType = asRecord(asRecord(event?.status)?.type);
   const week = normalizeWeek(getNumber(asRecord(event?.week), "number"));
+  const status = normalizeStatus(statusType);
+  const timeConfirmed =
+    status !== "scheduled" ||
+    (getBoolean(competition, "timeValid") === true &&
+      getBoolean(asRecord(competition?.status), "isTBDFlex") !== true);
+  const vikingsScore =
+    status === "scheduled" ? null : parseScore(vikings?.score);
+  const opponentScore =
+    status === "scheduled" ? null : parseScore(opponent?.score);
 
   if (
     !vikings ||
+    competitors.length !== 2 ||
     !opponent ||
     !opponentCode ||
     !eventId ||
+    eventId.length > 64 ||
     !kickoffAt ||
     !Number.isFinite(Date.parse(kickoffAt)) ||
     !season ||
-    !seasonType
+    !seasonType ||
+    !week ||
+    !status ||
+    !/^[A-Z]{2,4}$/.test(opponentCode) ||
+    (status !== "scheduled" &&
+      (vikingsScore === null || opponentScore === null))
   ) {
     return null;
   }
@@ -137,117 +193,104 @@ function normalizeEvent(value: unknown): LiveGameUpdate | null {
     eventId,
     season,
     seasonType,
-    status: normalizeStatus(statusType),
-    statusDetail:
+    status,
+    statusDetail: (
       getString(statusType, "shortDetail") ??
       getString(statusType, "detail") ??
-      "",
-    kickoffAt,
+      ""
+    ).slice(0, 120),
+    kickoffAt: timeConfirmed ? kickoffAt : null,
     week,
     opponentCode: normalizeTeamCode(opponentCode),
-    vikingsScore: parseScore(vikings.score),
-    opponentScore: parseScore(opponent.score),
+    vikingsScore,
+    opponentScore,
   };
 }
 
-async function refreshLiveEvent(
-  update: LiveGameUpdate,
-): Promise<LiveGameUpdate> {
+async function fetchEspnVikingsScores(
+  season: number,
+): Promise<LiveScoreResponse> {
+  const fetchedAt = new Date().toISOString();
+
   try {
-    const response = await fetch(espnGameUrl(update.eventId), {
+    const response = await fetch(espnScoreboardUrl(season), {
       headers: {
         Accept: "application/json",
-        "User-Agent":
-          "Mozilla/5.0 (compatible; MinnesotaVikingsBR/1.0; +https://minnesotavikingsbr.com)",
+        "User-Agent": "Mozilla/5.0",
       },
       cache: "no-store",
+      redirect: "error",
       signal: AbortSignal.timeout(espnRequestTimeout),
     });
 
     if (!response.ok) {
-      return update;
+      await response.body?.cancel();
+      return { season, games: [], source: "unavailable", fetchedAt };
     }
 
-    const payload = asRecord(await response.json());
-    const gamePackage = asRecord(payload?.gamepackageJSON);
-    const header = asRecord(gamePackage?.header);
-    const competition = asRecord(getArray(header, "competitions")[0]);
-    const competitors = getArray(competition, "competitors")
-      .map(asRecord)
-      .filter((competitor): competitor is UnknownRecord => competitor !== null);
-    const vikings = competitors.find(
-      (competitor) =>
-        getString(asRecord(competitor.team), "abbreviation") === "MIN",
-    );
-    const opponent = competitors.find((competitor) => competitor !== vikings);
-    const opponentCode = getString(asRecord(opponent?.team), "abbreviation");
-    const statusType = asRecord(asRecord(competition?.status)?.type);
-    const vikingsScore = parseScore(vikings?.score);
-    const opponentScore = parseScore(opponent?.score);
-
-    if (
-      !vikings ||
-      !opponent ||
-      !opponentCode ||
-      normalizeTeamCode(opponentCode) !== update.opponentCode ||
-      vikingsScore === null ||
-      opponentScore === null
-    ) {
-      return update;
+    const payload = asRecord(await readScoreboard(response));
+    if (!Array.isArray(payload?.events) || payload.events.length > 1000) {
+      return { season, games: [], source: "unavailable", fetchedAt };
     }
-
+    const games = payload.events
+      .map(normalizeEvent)
+      .filter(
+        (game): game is LiveGameUpdate =>
+          game !== null && game.season === season,
+      );
     return {
-      ...update,
-      status: normalizeStatus(statusType),
-      statusDetail:
-        getString(statusType, "shortDetail") ??
-        getString(statusType, "detail") ??
-        update.statusDetail,
-      vikingsScore,
-      opponentScore,
+      season,
+      games,
+      source: games.length ? "espn" : "unavailable",
+      fetchedAt,
     };
   } catch {
-    return update;
+    return { season, games: [], source: "unavailable", fetchedAt };
   }
 }
 
 export async function getEspnVikingsScores(
   season: number,
 ): Promise<LiveScoreResponse> {
-  const fetchedAt = new Date().toISOString();
+  const unavailable = (): LiveScoreResponse => ({
+    season,
+    games: [],
+    source: "unavailable",
+    fetchedAt: new Date().toISOString(),
+  });
+  if (!getSchedule(season)) return unavailable();
+  const entry = scoreCache.get(season) ?? { retryAt: 0 };
+  scoreCache.set(season, entry);
+  if (entry.pending) return entry.pending;
+  if (Date.now() < entry.retryAt) return entry.result ?? unavailable();
 
-  try {
-    const response = await fetch(espnScoreboardUrl, {
-      headers: {
-        Accept: "application/json",
-        "User-Agent":
-          "Mozilla/5.0 (compatible; MinnesotaVikingsBR/1.0; +https://minnesotavikingsbr.com)",
-      },
-      cache: "no-store",
-      signal: AbortSignal.timeout(espnRequestTimeout),
+  entry.pending = fetchEspnVikingsScores(season)
+    .then((result) => {
+      if (result.source === "espn") {
+        const previous = new Map(
+          entry.result?.games.map((game) => [game.eventId, game]),
+        );
+        for (const game of result.games) {
+          const known = previous.get(game.eventId);
+          if (
+            (known?.status === "final" && game.status !== "final") ||
+            (known?.status === "live" && game.status === "scheduled")
+          )
+            continue;
+          previous.set(game.eventId, game);
+        }
+        entry.result = {
+          ...result,
+          games: [...previous.values()].slice(-1000),
+        };
+        entry.retryAt = Date.parse(result.fetchedAt) + scoreCacheLifetimeMs;
+      } else {
+        entry.retryAt = Date.now() + retryDelayMs;
+      }
+      return entry.result ?? result;
+    })
+    .finally(() => {
+      entry.pending = undefined;
     });
-
-    if (!response.ok) {
-      return { season, games: [], source: "unavailable", fetchedAt };
-    }
-
-    const payload = asRecord(await response.json());
-    const content = asRecord(payload?.content);
-    const scoreboardData = asRecord(content?.sbData);
-    const scoreboardGames = getArray(scoreboardData, "events")
-      .map(normalizeEvent)
-      .filter(
-        (game): game is LiveGameUpdate =>
-          game !== null && game.season === season,
-      );
-    const games = await Promise.all(
-      scoreboardGames.map((game) =>
-        game.status === "live" ? refreshLiveEvent(game) : game,
-      ),
-    );
-
-    return { season, games, source: "espn", fetchedAt };
-  } catch {
-    return { season, games: [], source: "unavailable", fetchedAt };
-  }
+  return entry.pending;
 }

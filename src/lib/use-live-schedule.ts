@@ -1,124 +1,76 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
+  isLiveGameUpdate,
   mergeLiveScoreUpdates,
-  type LiveGameUpdate,
-  type LiveScoreResponse,
+  type DisplayScheduleGame,
 } from "@/lib/live-scores";
 import { getScoreRefreshSeasonType } from "@/lib/game-selection";
 import type { ScheduleGame } from "@/lib/schedule";
 
-export function useLiveSchedule(
-  games: ScheduleGame[],
-  season: number,
-  enabled: boolean,
-  referenceTime: number,
-  fetchInitially: boolean = false,
-) {
-  const [liveUpdates, setLiveUpdates] = useState<LiveGameUpdate[]>([]);
-  const displayedGames = useMemo(
-    () => mergeLiveScoreUpdates(games, liveUpdates, season, referenceTime),
-    [games, liveUpdates, referenceTime, season],
-  );
-  const shouldPoll =
-    enabled &&
-    getScoreRefreshSeasonType(displayedGames, referenceTime) !== null;
+export function useLiveSchedule(games: ScheduleGame[], season: number) {
+  const [snapshot, setSnapshot] = useState({ base: games, games });
 
   useEffect(() => {
-    if (!enabled || (!fetchInitially && !shouldPoll)) {
-      return;
-    }
-
     let cancelled = false;
-    let pollTimer: ReturnType<typeof setTimeout> | undefined;
-    let fallbackTimer: ReturnType<typeof setTimeout> | undefined;
-    let idleCallbackId: number | undefined;
+    let currentGames: DisplayScheduleGame[] = games;
+    let timer: ReturnType<typeof setTimeout>;
     let activeRequest: AbortController | undefined;
 
-    function scheduleNextRefresh() {
-      pollTimer = setTimeout(refreshScores, 60_000);
-    }
-
-    async function refreshScores() {
-      activeRequest?.abort();
-      activeRequest = new AbortController();
-
-      try {
-        const response = await fetch(`/api/vikings-score?season=${season}`, {
-          signal: activeRequest.signal,
-        });
-
-        if (!response.ok) {
-          if (!cancelled && shouldPoll) {
-            scheduleNextRefresh();
+    async function refreshScores(initial = false) {
+      // This local timer also wakes a page left open before kickoff. It makes
+      // no network requests outside the window, apart from the initial fetch.
+      if (
+        initial ||
+        getScoreRefreshSeasonType(currentGames, Date.now()) !== null
+      ) {
+        activeRequest = new AbortController();
+        const timeout = setTimeout(() => activeRequest?.abort(), 10_000);
+        try {
+          const response = await fetch(`/api/vikings-score?season=${season}`, {
+            signal: activeRequest.signal,
+          });
+          if (response.ok) {
+            const payload: unknown = await response.json();
+            if (
+              payload &&
+              typeof payload === "object" &&
+              "source" in payload &&
+              payload.source === "espn" &&
+              "season" in payload &&
+              payload.season === season &&
+              "games" in payload &&
+              Array.isArray(payload.games) &&
+              !cancelled
+            ) {
+              currentGames = mergeLiveScoreUpdates(
+                currentGames,
+                payload.games.filter(isLiveGameUpdate),
+                season,
+                Date.now(),
+              );
+              setSnapshot({ base: games, games: currentGames });
+            }
           }
-          return;
-        }
-
-        const payload = (await response.json()) as Partial<LiveScoreResponse>;
-        if (
-          cancelled ||
-          payload.source !== "espn" ||
-          payload.season !== season ||
-          !Array.isArray(payload.games)
-        ) {
-          if (!cancelled && shouldPoll) {
-            scheduleNextRefresh();
-          }
-          return;
-        }
-
-        setLiveUpdates(payload.games);
-        const refreshedGames = mergeLiveScoreUpdates(
-          games,
-          payload.games,
-          season,
-          Date.now(),
-        );
-        const continuePolling =
-          getScoreRefreshSeasonType(refreshedGames, Date.now()) !== null;
-
-        if (!cancelled && shouldPoll && continuePolling) {
-          scheduleNextRefresh();
-        }
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        if (!cancelled && shouldPoll) {
-          scheduleNextRefresh();
+        } catch {
+          // Keep the local schedule and every previously confirmed score.
+        } finally {
+          clearTimeout(timeout);
         }
       }
+      if (!cancelled) timer = setTimeout(refreshScores, 60_000);
     }
 
-    if (typeof window.requestIdleCallback === "function") {
-      idleCallbackId = window.requestIdleCallback(refreshScores, {
-        timeout: 2_000,
-      });
-    } else {
-      fallbackTimer = setTimeout(refreshScores, 1_000);
-    }
-
+    // Deferring the initial fetch also coalesces React Strict Mode's effect replay.
+    timer = setTimeout(() => refreshScores(true), 0);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
       activeRequest?.abort();
-
-      if (idleCallbackId !== undefined) {
-        window.cancelIdleCallback(idleCallbackId);
-      }
-
-      if (fallbackTimer !== undefined) {
-        clearTimeout(fallbackTimer);
-      }
-
-      if (pollTimer !== undefined) {
-        clearTimeout(pollTimer);
-      }
     };
-  }, [enabled, fetchInitially, games, season, shouldPoll]);
+  }, [games, season]);
 
-  return displayedGames;
+  return snapshot.base === games ? snapshot.games : games;
 }

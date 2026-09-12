@@ -43,7 +43,9 @@ export function formatGameDate(
     month: "long",
     year: "numeric",
     timeZone: resolveTimeZone(timeZone),
-  }).format(kickoffDate);
+  })
+    .format(kickoffDate)
+    .replace(/^./u, (letter) => letter.toLocaleUpperCase("pt-BR"));
 }
 
 export function formatGameTime(
