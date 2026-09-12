@@ -10,17 +10,13 @@ import {
   formatGameTime,
   isBrazilTimeEquivalent,
 } from "@/lib/time-zone";
-import { useLiveSchedule } from "@/lib/use-live-schedule";
 import { useLocalTimeZone } from "@/lib/use-local-time-zone";
-import { useReferenceTime } from "@/lib/use-reference-time";
 import type { ScheduleGame } from "@/lib/schedule";
 
 type ScheduleListProps = {
   games: ScheduleGame[];
-  season: number;
   referenceTime: number;
-  enableLiveScores?: boolean;
-  fetchLiveScoresInitially?: boolean;
+  seasonType: "preseason" | "regular";
 };
 
 const statusLabels = {
@@ -33,29 +29,18 @@ const statusLabels = {
 
 function formatCalendarDate(game: ScheduleGame, timeZone: string) {
   return formatGameDate(game, timeZone)
-    .replace(/^./u, (letter) => letter.toLocaleUpperCase("pt-BR"))
     .replace(/\bde (\p{L})/gu, (_match, letter: string) =>
       `de ${letter.toLocaleUpperCase("pt-BR")}`,
     );
 }
 
 export default function ScheduleList({
-  games,
-  season,
-  referenceTime,
-  enableLiveScores = false,
-  fetchLiveScoresInitially = false,
+  games: displayedGames,
+  referenceTime: currentReferenceTime,
+  seasonType,
 }: ScheduleListProps) {
   const listRef = useRef<HTMLDivElement>(null);
   const timeZone = useLocalTimeZone();
-  const currentReferenceTime = useReferenceTime(referenceTime);
-  const displayedGames = useLiveSchedule(
-    games,
-    season,
-    enableLiveScores,
-    currentReferenceTime,
-    fetchLiveScoresInitially,
-  );
   const currentGameId = useMemo(
     () => getCurrentGame(displayedGames, currentReferenceTime)?.id ?? null,
     [currentReferenceTime, displayedGames],
@@ -121,7 +106,7 @@ export default function ScheduleList({
   }
 
   const seasonLabel =
-    games[0]?.seasonType === "preseason"
+    seasonType === "preseason"
       ? "pré-temporada"
       : "temporada regular";
 

@@ -2,14 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import LocalTimeZoneNotice from "@/components/LocalTimeZoneNotice";
-import ScheduleList from "@/components/ScheduleList";
-import {
-  getAvailableSeasons,
-  getCurrentSchedule,
-  resolveSchedule,
-} from "@/data/schedules";
-import { getRelevantGame } from "@/lib/game-selection";
-import { getPreseasonGames, getRegularSeasonGames } from "@/lib/schedule";
+import ScheduleSections from "@/components/ScheduleSections";
+import { getAvailableSeasons, resolveSchedule } from "@/data/schedules";
 import { formatVerifiedDate } from "@/lib/time-zone";
 
 export const revalidate = 3600;
@@ -37,15 +31,8 @@ export default async function SchedulePage({
 }: SchedulePageProps) {
   const { season } = await searchParams;
   const schedule = resolveSchedule(season);
-  const currentSchedule = getCurrentSchedule();
   const availableSeasons = getAvailableSeasons();
-  const preseasonGames = getPreseasonGames(schedule);
-  const regularSeasonGames = getRegularSeasonGames(schedule);
   const referenceTime = Date.now();
-  const liveScoresSeasonType =
-    schedule.season === currentSchedule.season
-      ? getRelevantGame(schedule.games, referenceTime)?.seasonType ?? null
-      : null;
 
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
@@ -91,43 +78,11 @@ export default async function SchedulePage({
       </section>
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 pb-20 sm:px-6 lg:px-8">
-        <section aria-labelledby="preseason-title">
-          <p className="font-display text-xs tracking-[0.2em] text-vikings-gold">
-            AQUECIMENTO PARA A TEMPORADA
-          </p>
-          <h2
-            id="preseason-title"
-            className="mb-6 mt-2 font-display text-3xl font-bold text-white sm:text-4xl"
-          >
-            PRÉ-TEMPORADA
-          </h2>
-          <ScheduleList
-            games={preseasonGames}
-            season={schedule.season}
-            referenceTime={referenceTime}
-            enableLiveScores={liveScoresSeasonType === "preseason"}
-            fetchLiveScoresInitially={liveScoresSeasonType === "preseason"}
-          />
-        </section>
-
-        <section aria-labelledby="regular-season-title">
-          <p className="font-display text-xs tracking-[0.2em] text-vikings-gold">
-            CAMINHO ATÉ OS PLAYOFFS
-          </p>
-          <h2
-            id="regular-season-title"
-            className="mb-6 mt-2 font-display text-3xl font-bold text-white sm:text-4xl"
-          >
-            TEMPORADA REGULAR
-          </h2>
-          <ScheduleList
-            games={regularSeasonGames}
-            season={schedule.season}
-            referenceTime={referenceTime}
-            enableLiveScores={liveScoresSeasonType === "regular"}
-            fetchLiveScoresInitially={liveScoresSeasonType === "regular"}
-          />
-        </section>
+        <ScheduleSections
+          key={schedule.season}
+          schedule={schedule}
+          referenceTime={referenceTime}
+        />
 
         <aside className="flex flex-col gap-3 border-t border-white/10 py-6 text-sm leading-relaxed text-white/40 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
           <p className="max-w-3xl">

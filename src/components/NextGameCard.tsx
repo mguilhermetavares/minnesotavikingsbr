@@ -30,12 +30,10 @@ export default function NextGameCard({
   const displayedGames = useLiveSchedule(
     schedule.games,
     schedule.season,
-    true,
-    currentReferenceTime,
   );
   const selection = useMemo(
-    () => getGameSelection(displayedGames, currentReferenceTime),
-    [currentReferenceTime, displayedGames],
+    () => getGameSelection(displayedGames, currentReferenceTime, schedule.season),
+    [currentReferenceTime, displayedGames, schedule.season],
   );
   const featuredGame = selection.currentGame ?? selection.nextGame;
 
