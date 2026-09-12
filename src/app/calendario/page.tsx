@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
 
 import LocalTimeZoneNotice from "@/components/LocalTimeZoneNotice";
@@ -14,15 +14,39 @@ type SchedulePageProps = {
   }>;
 };
 
-export async function generateMetadata({
-  searchParams,
-}: SchedulePageProps): Promise<Metadata> {
+export async function generateMetadata(
+  { searchParams }: SchedulePageProps,
+  parent: ResolvingMetadata,
+): Promise<Metadata> {
   const { season } = await searchParams;
   const schedule = resolveSchedule(season);
+  const inherited = await parent;
+  const title = `Calendário ${schedule.season}`;
+  const sharingTitle = `${title} | Minnesota Vikings BR`;
+  const description = `Jogos, horários e resultados do Minnesota Vikings na temporada ${schedule.season}, com horários no fuso local e referência de Brasília.`;
+  const calendarUrl = `/calendario?season=${schedule.season}`;
 
   return {
-    title: `Calendário ${schedule.season}`,
-    description: `Calendário de jogos do Minnesota Vikings na temporada ${schedule.season}, com horários no fuso local.`,
+    title,
+    description,
+    alternates: { canonical: calendarUrl },
+    openGraph: {
+      title: sharingTitle,
+      description,
+      url: calendarUrl,
+      siteName: inherited.openGraph?.siteName,
+      locale: inherited.openGraph?.locale,
+      type: "website",
+    },
+    // The route's opengraph-image file supplies the image for both cards.
+    // Keep images unset here so Next.js can resolve its generated URL.
+    twitter: {
+      card: "summary_large_image",
+      title: sharingTitle,
+      description,
+      site: inherited.twitter?.site,
+      creator: inherited.twitter?.creator,
+    },
   };
 }
 
