@@ -116,7 +116,7 @@ export default function ScheduleList({
         <p className="text-sm text-white/40">
           Arraste ou use as setas para navegar pelos jogos.
         </p>
-        <div className="hidden flex-shrink-0 items-center gap-2 sm:flex">
+        <div className="flex flex-shrink-0 items-center gap-2">
           <button
             type="button"
             onClick={() => scrollSchedule("previous")}
