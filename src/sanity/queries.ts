@@ -54,6 +54,28 @@ export const podcastEpisodesQuery = groq`
   }
 `;
 
+export const fantasyStandingsQuery = groq`
+  *[_type == "fantasyStandings"][0] {
+    updatedAt,
+    entries[] | order(rank asc) {
+      rank,
+      teamName,
+      ownerName,
+      leagueId,
+      avatarUrl,
+      totalPoints
+    },
+    bestSingleWeek {
+      teamName,
+      ownerName,
+      leagueId,
+      avatarUrl,
+      week,
+      points
+    }
+  }
+`;
+
 export const latestEpisodeQuery = groq`
   *[_type == "podcastEpisode"] | order(publishedAt desc) [0] {
     _id,
