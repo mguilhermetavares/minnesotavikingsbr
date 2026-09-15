@@ -12,7 +12,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.sanity.io www.googletagmanager.com",
       "style-src 'self' 'unsafe-inline' fonts.googleapis.com",
       "font-src 'self' fonts.gstatic.com",
-      "img-src 'self' data: blob: cdn.sanity.io i.ytimg.com www.googletagmanager.com www.google-analytics.com",
+      "img-src 'self' data: blob: cdn.sanity.io i.ytimg.com sleepercdn.com www.googletagmanager.com www.google-analytics.com",
       "frame-src 'self' open.spotify.com www.youtube.com",
       "connect-src 'self' cdn.sanity.io api.sanity.io www.youtube.com www.google-analytics.com analytics.google.com region1.google-analytics.com",
       "media-src 'self' cdn.sanity.io",
@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "cdn.sanity.io" },
       { protocol: "https", hostname: "i.ytimg.com" },
+      { protocol: "https", hostname: "sleepercdn.com" },
     ],
   },
   async headers() {
