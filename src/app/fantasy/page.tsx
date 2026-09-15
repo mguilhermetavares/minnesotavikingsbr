@@ -3,7 +3,7 @@ import Image from "next/image";
 import { client } from "@/sanity/client";
 import { fantasyStandingsQuery } from "@/sanity/queries";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Fantasy MVB | Minnesota Vikings BR",
