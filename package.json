@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sync:fantasy": "../../playground/fantasy-sync/.venv/bin/python3 ../../playground/fantasy-sync/sync.py"
   },
   "dependencies": {
     "@portabletext/react": "^6.0.3",
