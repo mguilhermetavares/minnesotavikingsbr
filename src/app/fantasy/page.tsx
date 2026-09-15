@@ -1,9 +1,56 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { client } from "@/sanity/client";
+import { fantasyStandingsQuery } from "@/sanity/queries";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Fantasy MVB | Minnesota Vikings BR",
   description:
-    "O Fantasy da torcida mais fanática do Brasil. Inscrições encerradas — as 3 ligas da temporada 2026 do Fantasy MVB já estão formadas.",
+    "O campeonato de fantasy da torcida mais fanática do Brasil. 3 ligas disputando a temporada 2026 do Fantasy MVB — confira a classificação geral.",
+};
+
+interface StandingEntry {
+  rank: number;
+  teamName: string;
+  ownerName?: string;
+  leagueId?: string;
+  avatarUrl?: string;
+  totalPoints: number;
+}
+
+interface BestSingleWeek {
+  teamName: string;
+  ownerName?: string;
+  leagueId?: string;
+  avatarUrl?: string;
+  week: number;
+  points: number;
+}
+
+interface FantasyStandings {
+  updatedAt: string;
+  entries: StandingEntry[];
+  bestSingleWeek?: BestSingleWeek;
+}
+
+// Só usado em dev, quando ainda não existe documento no Sanity — nunca aparece em produção.
+const devMockStandings: FantasyStandings = {
+  updatedAt: new Date().toISOString(),
+  entries: [
+    { rank: 1, teamName: "Roxo e Ouro FC", ownerName: "guido", totalPoints: 1487.3 },
+    { rank: 2, teamName: "Skol Vikings", ownerName: "otavio", totalPoints: 1462.8 },
+    { rank: 3, teamName: "Norse Force", ownerName: "julyanne", totalPoints: 1440.1 },
+    { rank: 4, teamName: "Purple People Eaters BR", ownerName: "rafa", totalPoints: 1421.6 },
+    { rank: 5, teamName: "Anthem of Minnesota", ownerName: "bia", totalPoints: 1398.4 },
+    { rank: 6, teamName: "Legion of Purple", ownerName: "thiago", totalPoints: 1380.9 },
+    { rank: 7, teamName: "Viking Raiders BR", ownerName: "carlos", totalPoints: 1365.2 },
+    { rank: 8, teamName: "Gjallarhorn Squad", ownerName: "fe", totalPoints: 1349.7 },
+    { rank: 9, teamName: "Kirko's Army", ownerName: "pedro", totalPoints: 1332.5 },
+    { rank: 10, teamName: "Ragnarök BR", ownerName: "lu", totalPoints: 1318.0 },
+  ],
+  bestSingleWeek: { teamName: "Roxo e Ouro FC", ownerName: "guido", week: 3, points: 187.4 },
 };
 
 const prizes = [
@@ -25,7 +72,11 @@ const roster = [
   { pos: "IR", qty: "2", color: "bg-pink-500/20 text-pink-300 border-pink-500/30" },
 ];
 
-export default function FantasyPage() {
+export default async function FantasyPage() {
+  const fetched = await client.fetch<FantasyStandings | null>(fantasyStandingsQuery);
+  const standings = fetched ?? (process.env.NODE_ENV === "development" ? devMockStandings : null);
+  const hasStandings = !!standings?.entries?.length;
+
   return (
     <div className="min-h-screen bg-[#0a0a0f]">
       {/* Hero */}
@@ -45,37 +96,124 @@ export default function FantasyPage() {
             O FANTASY DA TORCIDA MAIS FANÁTICA DO BRASIL
           </p>
           <p className="mt-6 text-white/50 text-base max-w-2xl mx-auto leading-relaxed">
-            Uma liga exclusiva para torcedores do Minnesota Vikings, criada para unir a comunidade e financiar a produção de conteúdo em português.
+            Um campeonato exclusivo para torcedores do Minnesota Vikings — 3 ligas disputando entre si, criado para unir a comunidade e financiar a produção de conteúdo em português.
           </p>
         </div>
       </section>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-6">
 
-        {/* Transparência financeira */}
-        <div className="relative overflow-hidden rounded-2xl border border-vikings-gold/20 bg-gradient-to-br from-vikings-gold/10 to-vikings-gold/5 p-8">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-vikings-gold/10 rounded-full blur-[60px]" />
-          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-            <div className="text-5xl">💰</div>
-            <div>
-              <p className="font-display text-vikings-gold text-sm tracking-[0.15em] mb-1">TRANSPARÊNCIA TOTAL</p>
-              <h2 className="font-display text-white text-2xl font-bold mb-2">Inscrição: R$ 30,00</h2>
-              <div className="flex flex-wrap gap-4 text-sm text-white/60">
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-vikings-gold flex-shrink-0" />
-                  <span><strong className="text-white">R$ 15,00</strong> → Premiação da liga</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-vikings-purple-light flex-shrink-0" />
-                  <span><strong className="text-white">R$ 15,00</strong> → Projeto MVB (produção de conteúdo)</span>
-                </span>
+        {hasStandings && standings && (
+          <>
+            {/* Classificação geral — pensado pra ser printado e postado no Instagram */}
+            <div className="relative overflow-hidden rounded-2xl border-2 border-vikings-gold/20 bg-surface-raised">
+              <div className="p-8 pb-4 text-center">
+                <p className="font-display text-vikings-gold text-xs tracking-[0.3em] mb-2">
+                  TOP 10 · TEMPORADA 2026
+                </p>
+                <h2 className="font-display text-white text-4xl font-bold tracking-tight">
+                  CLASSIFICAÇÃO <span className="text-gold-gradient">GERAL</span>
+                </h2>
+                <p className="text-white/40 text-sm mt-2">
+                  Pontos acumulados nas 3 ligas do Fantasy MVB 2026
+                </p>
               </div>
-              <p className="text-white/30 text-xs mt-3">
-                100% do dinheiro vai para premiação e para o projeto. Nenhum centavo fica com os comissários.
+
+              <div>
+                {standings.entries.map((entry, i) => (
+                  <div
+                    key={entry.rank}
+                    className={`flex items-center gap-4 px-6 py-3.5 ${
+                      entry.rank === 1
+                        ? "bg-vikings-gold/15"
+                        : i % 2 === 0
+                          ? "bg-white/[0.03]"
+                          : "bg-transparent"
+                    }`}
+                  >
+                    <span
+                      className={`font-display font-bold text-lg w-9 h-9 flex-shrink-0 rounded-lg flex items-center justify-center ${
+                        entry.rank === 1
+                          ? "bg-vikings-gold text-vikings-purple-dark"
+                          : "bg-white/10 text-white/60"
+                      }`}
+                    >
+                      {entry.rank}
+                    </span>
+                    {entry.avatarUrl ? (
+                      <Image
+                        src={entry.avatarUrl}
+                        alt={entry.teamName}
+                        width={40}
+                        height={40}
+                        className="rounded-full flex-shrink-0 border-2 border-white/10"
+                        unoptimized
+                      />
+                    ) : (
+                      <span className="w-10 h-10 rounded-full bg-vikings-purple/30 border-2 border-white/10 flex-shrink-0" />
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display text-white font-bold text-sm sm:text-base uppercase tracking-wide truncate">
+                        {entry.teamName}
+                      </p>
+                      {entry.ownerName && (
+                        <p className="text-white/40 text-xs truncate">{entry.ownerName}</p>
+                      )}
+                    </div>
+                    <span
+                      className={`font-display font-bold text-sm sm:text-base flex-shrink-0 rounded-lg px-3 py-1.5 ${
+                        entry.rank === 1
+                          ? "bg-vikings-gold text-vikings-purple-dark"
+                          : "bg-white/10 text-white"
+                      }`}
+                    >
+                      {entry.totalPoints.toFixed(1)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <p className="text-white/20 text-[11px] text-center py-4 border-t border-white/5">
+                Atualizado em {new Date(standings.updatedAt).toLocaleDateString("pt-BR")}
               </p>
             </div>
-          </div>
-        </div>
+
+            {/* Maior pontuação em uma única rodada */}
+            {standings.bestSingleWeek && (
+              <div className="relative overflow-hidden rounded-2xl border border-vikings-gold/30 bg-gradient-to-br from-vikings-gold/10 to-vikings-gold/5 p-6 sm:p-8">
+                <div className="flex flex-wrap items-center gap-5">
+                  {standings.bestSingleWeek.avatarUrl ? (
+                    <Image
+                      src={standings.bestSingleWeek.avatarUrl}
+                      alt={standings.bestSingleWeek.teamName}
+                      width={56}
+                      height={56}
+                      className="rounded-full flex-shrink-0 border-2 border-vikings-gold/40"
+                      unoptimized
+                    />
+                  ) : (
+                    <span className="w-14 h-14 rounded-full bg-vikings-purple/30 border-2 border-vikings-gold/40 flex-shrink-0" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-display text-vikings-gold text-xs tracking-[0.2em] mb-1">
+                      ⚡ MAIOR PONTUAÇÃO EM UMA RODADA
+                    </p>
+                    <p className="font-display text-white font-bold text-lg sm:text-xl uppercase tracking-wide truncate">
+                      {standings.bestSingleWeek.teamName}
+                    </p>
+                    <p className="text-white/40 text-xs">
+                      {standings.bestSingleWeek.ownerName ? `${standings.bestSingleWeek.ownerName} · ` : ""}
+                      Rodada {standings.bestSingleWeek.week}
+                    </p>
+                  </div>
+                  <span className="font-display text-vikings-gold font-bold text-2xl sm:text-3xl flex-shrink-0">
+                    {standings.bestSingleWeek.points.toFixed(1)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </>
+        )}
 
         {/* Premiação */}
         <div className="bg-surface-raised border border-white/5 rounded-2xl p-8">
@@ -147,10 +285,6 @@ export default function FantasyPage() {
                   <span className="text-vikings-gold mt-0.5">→</span>
                   Trades desbalanceadas podem ser denunciadas e votadas pelo grupo no WhatsApp.
                 </p>
-                <p className="flex items-start gap-2">
-                  <span className="text-vikings-gold mt-0.5">→</span>
-                  Inscrições <strong className="text-white">encerradas</strong>.
-                </p>
               </div>
             </div>
 
@@ -214,10 +348,10 @@ export default function FantasyPage() {
             style={{ backgroundImage: `repeating-linear-gradient(45deg, #FFC62F 0, #FFC62F 1px, transparent 0, transparent 50%)`, backgroundSize: "20px 20px" }}
           />
           <div className="relative z-10">
-            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">INSCRIÇÕES ENCERRADAS</p>
-            <h2 className="font-display text-white text-3xl font-bold mb-3">AS 3 LIGAS ESTÃO FORMADAS!</h2>
+            <p className="font-display text-vikings-gold text-sm tracking-[0.2em] mb-3">TEMPORADA 2026</p>
+            <h2 className="font-display text-white text-3xl font-bold mb-3">O CAMPEONATO ESTÁ ROLANDO!</h2>
             <p className="text-white/50 max-w-md mx-auto mb-8 text-sm">
-              As vagas se esgotaram e as 3 ligas do Fantasy MVB já foram montadas no Sleeper. Fique de olho nas redes pra acompanhar a temporada e não perder a próxima edição.
+              As 3 ligas do Fantasy MVB já estão disputando a temporada 2026 no Sleeper. Fique de olho nas redes pra acompanhar a classificação e não perder a próxima edição.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
               <a
@@ -240,6 +374,31 @@ export default function FantasyPage() {
             <p className="text-white/20 text-xs mt-6">
               Comissários: João Otávio (@OtavioJP) e Guilherme Tavares (@_instaguido)
             </p>
+          </div>
+        </div>
+
+        {/* Transparência financeira */}
+        <div className="relative overflow-hidden rounded-2xl border border-vikings-gold/20 bg-gradient-to-br from-vikings-gold/10 to-vikings-gold/5 p-8">
+          <div className="absolute top-0 right-0 w-40 h-40 bg-vikings-gold/10 rounded-full blur-[60px]" />
+          <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="text-5xl">💰</div>
+            <div>
+              <p className="font-display text-vikings-gold text-sm tracking-[0.15em] mb-1">TRANSPARÊNCIA TOTAL</p>
+              <h2 className="font-display text-white text-2xl font-bold mb-2">Inscrição: R$ 30,00</h2>
+              <div className="flex flex-wrap gap-4 text-sm text-white/60">
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-vikings-gold flex-shrink-0" />
+                  <span><strong className="text-white">R$ 15,00</strong> → Premiação da liga</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <span className="w-3 h-3 rounded-full bg-vikings-purple-light flex-shrink-0" />
+                  <span><strong className="text-white">R$ 15,00</strong> → Projeto MVB (produção de conteúdo)</span>
+                </span>
+              </div>
+              <p className="text-white/30 text-xs mt-3">
+                100% do dinheiro vai para premiação e para o projeto. Nenhum centavo fica com os comissários.
+              </p>
+            </div>
           </div>
         </div>
 
