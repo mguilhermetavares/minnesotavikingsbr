@@ -19,13 +19,11 @@ export function useLiveSchedule(games: ScheduleGame[], season: number) {
     let timer: ReturnType<typeof setTimeout>;
     let activeRequest: AbortController | undefined;
 
-    async function refreshScores(initial = false) {
-      // This local timer also wakes a page left open before kickoff. It makes
-      // no network requests outside the window, apart from the initial fetch.
-      if (
-        initial ||
-        getScoreRefreshSeasonType(currentGames, Date.now()) !== null
-      ) {
+    async function refreshScores() {
+      // Settled results are already in the server-rendered schedule, so ESPN
+      // is only asked during a game window. This local timer also wakes a page
+      // left open before kickoff.
+      if (getScoreRefreshSeasonType(currentGames, Date.now()) !== null) {
         activeRequest = new AbortController();
         const timeout = setTimeout(() => activeRequest?.abort(), 10_000);
         try {
@@ -64,7 +62,7 @@ export function useLiveSchedule(games: ScheduleGame[], season: number) {
     }
 
     // Deferring the initial fetch also coalesces React Strict Mode's effect replay.
-    timer = setTimeout(() => refreshScores(true), 0);
+    timer = setTimeout(refreshScores, 0);
     return () => {
       cancelled = true;
       clearTimeout(timer);

@@ -62,8 +62,8 @@ const jsonLd = {
   ],
 };
 
-export default function Home() {
-  const schedule = getCurrentSchedule();
+export default async function Home() {
+  const schedule = await getCurrentSchedule();
   const referenceTime = Date.now();
 
   return (
@@ -184,10 +184,9 @@ export default function Home() {
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0a0a0f] to-transparent" />
       </section>
 
-      <NextGameCard
-        schedule={schedule}
-        referenceTime={referenceTime}
-      />
+      {schedule && (
+        <NextGameCard schedule={schedule} referenceTime={referenceTime} />
+      )}
 
       {/* ── FEATURES ── */}
       <section className="relative bg-[#0a0a0f] py-20">

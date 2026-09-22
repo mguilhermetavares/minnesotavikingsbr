@@ -1,12 +1,13 @@
 import type { Metadata, ResolvingMetadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
 import LocalTimeZoneNotice from "@/components/LocalTimeZoneNotice";
 import ScheduleSections from "@/components/ScheduleSections";
 import { getAvailableSeasons, resolveSchedule } from "@/data/schedules";
 import { formatVerifiedDate } from "@/lib/time-zone";
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 type SchedulePageProps = {
   searchParams: Promise<{
@@ -19,7 +20,8 @@ export async function generateMetadata(
   parent: ResolvingMetadata,
 ): Promise<Metadata> {
   const { season } = await searchParams;
-  const schedule = resolveSchedule(season);
+  const schedule = await resolveSchedule(season);
+  if (!schedule) notFound();
   const inherited = await parent;
   const title = `Calendário ${schedule.season}`;
   const sharingTitle = `${title} | Minnesota Vikings BR`;
@@ -54,8 +56,11 @@ export default async function SchedulePage({
   searchParams,
 }: SchedulePageProps) {
   const { season } = await searchParams;
-  const schedule = resolveSchedule(season);
-  const availableSeasons = getAvailableSeasons();
+  const [schedule, availableSeasons] = await Promise.all([
+    resolveSchedule(season),
+    getAvailableSeasons(),
+  ]);
+  if (!schedule) notFound();
   const referenceTime = Date.now();
 
   return (

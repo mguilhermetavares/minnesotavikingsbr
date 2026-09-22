@@ -1,4 +1,5 @@
-import schedule2026Json from "./2026.json";
+import { client } from "@/sanity/client";
+import { scheduleBySeasonQuery, scheduleSeasonsQuery } from "@/sanity/queries";
 
 export type SeasonType = "preseason" | "regular";
 
@@ -37,34 +38,31 @@ export type ScheduleData = {
   games: ScheduleGame[];
 };
 
-const schedules = new Map<number, ScheduleData>([
-  [2026, schedule2026Json as ScheduleData],
-]);
+// Studio edits and the weekly ESPN sync show up within five minutes.
+const scheduleFetchOptions = { next: { revalidate: 300 } };
 
-export function getAvailableSeasons() {
-  return [...schedules.keys()].sort((a, b) => b - a);
+export async function getAvailableSeasons() {
+  return client.fetch<number[]>(scheduleSeasonsQuery, {}, scheduleFetchOptions);
 }
 
-export function getSchedule(season: number) {
+export async function getSchedule(season: number) {
   if (!Number.isInteger(season)) {
     return null;
   }
 
-  return schedules.get(season) ?? null;
+  return client.fetch<ScheduleData | null>(
+    scheduleBySeasonQuery,
+    { season },
+    scheduleFetchOptions,
+  );
 }
 
-export function getCurrentSchedule() {
-  const [currentSeason] = getAvailableSeasons();
-  const schedule = getSchedule(currentSeason);
-
-  if (!schedule) {
-    throw new Error("Nenhum calendário foi configurado.");
-  }
-
-  return schedule;
+export async function getCurrentSchedule() {
+  const [currentSeason] = await getAvailableSeasons();
+  return currentSeason === undefined ? null : getSchedule(currentSeason);
 }
 
-export function resolveSchedule(
+export async function resolveSchedule(
   requestedSeason: string | string[] | undefined,
 ) {
   const seasonValue = Array.isArray(requestedSeason)
@@ -72,5 +70,5 @@ export function resolveSchedule(
     : requestedSeason;
   const season = seasonValue ? Number(seasonValue) : Number.NaN;
 
-  return getSchedule(season) ?? getCurrentSchedule();
+  return (await getSchedule(season)) ?? getCurrentSchedule();
 }

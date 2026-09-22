@@ -9,9 +9,9 @@ export async function GET(request: NextRequest) {
   const requestedSeason = request.nextUrl.searchParams.get("season");
   const schedule =
     requestedSeason === null
-      ? getCurrentSchedule()
+      ? await getCurrentSchedule()
       : /^\d{4}$/.test(requestedSeason)
-        ? getSchedule(Number(requestedSeason))
+        ? await getSchedule(Number(requestedSeason))
         : null;
   if (!schedule) {
     return NextResponse.json(
