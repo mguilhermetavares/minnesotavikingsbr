@@ -89,3 +89,29 @@ export const latestEpisodeQuery = groq`
     coverImage
   }
 `;
+
+export const scheduleSeasonsQuery = groq`
+  *[_type == "vikingsSchedule" && defined(season)] | order(season desc).season
+`;
+
+export const scheduleBySeasonQuery = groq`
+  *[_type == "vikingsSchedule" && season == $season][0] {
+    season,
+    team,
+    source { name, url },
+    lastVerifiedAt,
+    "games": games[] | order(sequence asc) {
+      "id": gameId,
+      sequence,
+      seasonType,
+      week,
+      status,
+      location,
+      "opponent": select(defined(opponent.code) => opponent { code, name, shortName }, null),
+      kickoffAt,
+      venue,
+      vikingsScore,
+      opponentScore
+    }
+  }
+`;
