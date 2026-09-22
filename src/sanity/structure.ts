@@ -6,6 +6,7 @@ export const structure: StructureResolver = (S) =>
     .items([
       S.documentTypeListItem('article').title('Artigos'),
       S.documentTypeListItem('podcastEpisode').title('Episódios de Podcast'),
+      S.documentTypeListItem('vikingsSchedule').title('Calendário'),
       S.listItem()
         .title('Classificação Fantasy')
         .id('fantasyStandings')

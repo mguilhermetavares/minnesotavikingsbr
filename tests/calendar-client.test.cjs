@@ -8,7 +8,7 @@ const { createRoot } = require("react-dom/client");
 const { useLiveSchedule } = require("../src/lib/use-live-schedule.ts");
 const ScheduleSections =
   require("../src/components/ScheduleSections.tsx").default;
-const schedule = require("../src/data/schedules/2026.json");
+const schedule = require("./fixtures/schedule-2026.json");
 
 async function mount(t, element, now) {
   const dom = new JSDOM('<div id="root"></div>', { url: "http://localhost/" });
@@ -53,25 +53,30 @@ function response(games) {
   return Response.json({ source: "espn", season: 2026, games });
 }
 
-test("both calendar sections share one initial request, including Strict Mode, and show historical results", async (t) => {
-  const finals = schedule.games
-    .filter((g) => g.seasonType === "preseason")
-    .map((g) => update(g));
-  t.mock.method(globalThis, "fetch", async () => response(finals));
+test("historical results render from the server schedule without asking ESPN outside a game window", async (t) => {
+  const settled = {
+    ...schedule,
+    games: schedule.games.map((g) =>
+      g.seasonType === "preseason"
+        ? { ...g, status: "final", vikingsScore: 3, opponentScore: 13 }
+        : g,
+    ),
+  };
+  t.mock.method(globalThis, "fetch", async () => response([]));
   await mount(
     t,
     React.createElement(
       React.StrictMode,
       null,
       React.createElement(ScheduleSections, {
-        schedule,
+        schedule: settled,
         referenceTime: Date.parse("2026-09-12"),
       }),
     ),
     Date.parse("2026-09-12"),
   );
   await tick(t, 0);
-  assert.equal(fetch.mock.calls.length, 1);
+  assert.equal(fetch.mock.calls.length, 0);
   assert.deepEqual(
     [...document.querySelectorAll("h2")].map((e) => e.textContent),
     ["TEMPORADA REGULAR", "PRÉ-TEMPORADA"],
@@ -86,6 +91,25 @@ test("both calendar sections share one initial request, including Strict Mode, a
   ))
     assert.match(card.textContent, /FINAL/);
   await tick(t, 60_000);
+  assert.equal(fetch.mock.calls.length, 0);
+});
+
+test("both calendar sections share one request inside a game window, including Strict Mode", async (t) => {
+  const kickoff = Date.parse(schedule.games[3].kickoffAt);
+  t.mock.method(globalThis, "fetch", async () => response([]));
+  await mount(
+    t,
+    React.createElement(
+      React.StrictMode,
+      null,
+      React.createElement(ScheduleSections, {
+        schedule,
+        referenceTime: kickoff - 10 * 60_000,
+      }),
+    ),
+    kickoff - 10 * 60_000,
+  );
+  await tick(t, 0);
   assert.equal(fetch.mock.calls.length, 1);
 });
 
@@ -93,7 +117,6 @@ test("hook starts polling when window opens, preserves partial/error responses a
   const games = [schedule.games[1], schedule.games[3]];
   const kickoff = Date.parse(games[1].kickoffAt);
   const replies = [
-    response([update(games[0])]),
     response([update(games[1], "live")]),
     response([]),
     new Response("", { status: 503 }),
@@ -107,20 +130,19 @@ test("hook starts polling when window opens, preserves partial/error responses a
   }
   await mount(t, React.createElement(Probe), kickoff - 31 * 60_000);
   await tick(t, 0);
-  assert.equal(fetch.mock.calls.length, 1);
-  assert.equal(displayed[0].status, "final");
+  assert.equal(fetch.mock.calls.length, 0);
   await tick(t, 60_000);
-  assert.equal(fetch.mock.calls.length, 2);
+  assert.equal(fetch.mock.calls.length, 1);
   assert.equal(displayed[1].status, "live");
   await tick(t, 60_000);
   await tick(t, 60_000);
-  assert.equal(displayed[0].status, "final");
+  assert.equal(displayed[0], games[0]);
   assert.equal(displayed[1].status, "live");
   await tick(t, 60_000);
   assert.equal(displayed[1].status, "final");
-  assert.equal(fetch.mock.calls.length, 5);
+  assert.equal(fetch.mock.calls.length, 4);
   await tick(t, 60_000);
-  assert.equal(fetch.mock.calls.length, 5);
+  assert.equal(fetch.mock.calls.length, 4);
 });
 
 test("failed requests stop at the end of the estimated game window", async (t) => {
@@ -153,7 +175,8 @@ test("client timeout aborts a stalled request while retaining the local schedule
     displayed = useLiveSchedule(games, 2026);
     return null;
   }
-  await mount(t, React.createElement(Probe), Date.parse("2026-09-12"));
+  const kickoff = Date.parse(games[0].kickoffAt);
+  await mount(t, React.createElement(Probe), kickoff - 10 * 60_000);
   await tick(t, 0);
   assert.equal(signal.aborted, false);
   await tick(t, 10_000);

@@ -22,7 +22,11 @@ function resetScores() {
 }
 beforeEach(resetScores);
 const { NextRequest } = require("next/server");
-const schedule = require("../src/data/schedules/2026.json");
+const schedule = require("./fixtures/schedule-2026.json");
+const schedules = require("../src/data/schedules/index.ts");
+// Stand in for Sanity: only the 2026 season is published.
+schedules.getSchedule = async (season) => (season === 2026 ? schedule : null);
+schedules.getCurrentSchedule = async () => schedule;
 
 function event({
   season = 2026,
@@ -57,7 +61,7 @@ async function scores(t, events, season = 2026) {
   return getEspnVikingsScores(season);
 }
 
-test("season endpoint includes next January/February and filters team, season and playoffs", async (t) => {
+test("current-week scoreboard filters team, season and playoffs without a browser User-Agent", async (t) => {
   const otherTeam = event();
   otherTeam.competitions[0].competitors[0].team.id = "1";
   const namedWrong = event();
@@ -89,19 +93,17 @@ test("season endpoint includes next January/February and filters team, season an
     opponentScore: 13,
   });
   assert.equal(result.games[1].vikingsScore, null);
-  assert.match(
+  // ESPN answers 400 to season-long date ranges and 403 to Mozilla/5.0.
+  assert.equal(
     fetch.mock.calls[0].arguments[0],
-    /dates=20260801-20270228&limit=1000$/,
+    "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",
   );
   assert.equal(fetch.mock.calls.length, 1);
   assert.equal(fetch.mock.calls[0].arguments[1].cache, "no-store");
-  const schedules = require("../src/data/schedules/index.ts");
-  t.mock.method(schedules, "getSchedule", (year) => ({
-    ...schedule,
-    season: year,
-  }));
-  await getEspnVikingsScores(2027);
-  assert.match(fetch.mock.calls[1].arguments[0], /dates=20270801-20280229/);
+  assert.equal(
+    new Headers(fetch.mock.calls[0].arguments[1].headers).has("User-Agent"),
+    false,
+  );
 });
 
 test("provisional ESPN dates, WSH and 0-0 do not become confirmed games/results", async (t) => {

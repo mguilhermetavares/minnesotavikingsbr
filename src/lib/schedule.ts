@@ -1,8 +1,4 @@
-import {
-  getCurrentSchedule,
-  type ScheduleData,
-  type ScheduleGame,
-} from "@/data/schedules";
+import type { ScheduleData } from "@/data/schedules";
 
 export type {
   GameLocation,
@@ -13,32 +9,18 @@ export type {
   SeasonType,
 } from "@/data/schedules";
 
-export function getAllGames(schedule: ScheduleData = getCurrentSchedule()) {
+export function getAllGames(schedule: ScheduleData) {
   return [...schedule.games].sort((a, b) => a.sequence - b.sequence);
 }
 
-export function getPreseasonGames(
-  schedule: ScheduleData = getCurrentSchedule(),
-) {
+export function getPreseasonGames(schedule: ScheduleData) {
   return getAllGames(schedule).filter(
     (game) => game.seasonType === "preseason",
   );
 }
 
-export function getRegularSeasonGames(
-  schedule: ScheduleData = getCurrentSchedule(),
-) {
+export function getRegularSeasonGames(schedule: ScheduleData) {
   return getAllGames(schedule).filter(
     (game) => game.seasonType === "regular",
-  );
-}
-
-export function getLastCompletedGame(
-  games: ScheduleGame[] = getAllGames(),
-) {
-  return (
-    [...games]
-      .filter((game) => game.status === "final")
-      .sort((a, b) => b.sequence - a.sequence)[0] ?? null
   );
 }

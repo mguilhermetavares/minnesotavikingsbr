@@ -9,10 +9,11 @@ import type {
 } from "@/lib/live-scores";
 import type { SeasonType } from "@/lib/schedule";
 
-function espnScoreboardUrl(season: number) {
-  const lastFebruaryDay = new Date(Date.UTC(season + 1, 2, 0)).getUTCDate();
-  return `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${season}0801-${season + 1}02${lastFebruaryDay}&limit=1000`;
-}
+// Settled results come from Sanity (weekly sync); this only needs the games
+// in progress, which ESPN's default scoreboard (the current week) covers.
+// Date ranges spanning the season answer 400.
+const espnScoreboardUrl =
+  "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
 const espnRequestTimeout = 4000;
 export const scoreCacheLifetimeMs = 30_000;
 const retryDelayMs = 5_000;
@@ -213,11 +214,9 @@ async function fetchEspnVikingsScores(
   const fetchedAt = new Date().toISOString();
 
   try {
-    const response = await fetch(espnScoreboardUrl(season), {
-      headers: {
-        Accept: "application/json",
-        "User-Agent": "Mozilla/5.0",
-      },
+    // ESPN answers 403 to a browser-like User-Agent.
+    const response = await fetch(espnScoreboardUrl, {
+      headers: { Accept: "application/json" },
       cache: "no-store",
       redirect: "error",
       signal: AbortSignal.timeout(espnRequestTimeout),
@@ -258,7 +257,7 @@ export async function getEspnVikingsScores(
     source: "unavailable",
     fetchedAt: new Date().toISOString(),
   });
-  if (!getSchedule(season)) return unavailable();
+  if (!(await getSchedule(season))) return unavailable();
   const entry = scoreCache.get(season) ?? { retryAt: 0 };
   scoreCache.set(season, entry);
   if (entry.pending) return entry.pending;
